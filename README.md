@@ -1,5 +1,7 @@
 # Kinetic Cabinet
 
+![image](documentation/diagram.png)
+
 Sources for the Kinetic Cabinet.
 
 See the [related posts in my academic blog](https://academia.jansensan.net/category/imca-400/).
