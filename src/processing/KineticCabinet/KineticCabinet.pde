@@ -5,6 +5,8 @@ import processing.video.*;
 int CAM_WIDTH = 640;
 int CAM_HEIGHT = 480;
 
+float MOTION_TRIGGER_THRESHOLD = 0.75;
+
 float[][] VIEW_ZONES = {
   {0.000, 0.060}, // small
   {0.061, 0.146}, // medium
@@ -33,10 +35,6 @@ Gear bigGear3;
 
 PImage currentFrame;
 PImage flippedFrame;
-PImage bigGear1View;
-PImage bigGear1PrevFrame;
-PImage bigGear2View;
-PImage bigGear3View;
 
 float maxLeftFlow = 0;
 float maxRightFlow = 0;
@@ -50,16 +48,22 @@ void setup() {
   int viewWidth = floor(CAM_WIDTH * (VIEW_ZONES[2][1] - VIEW_ZONES[2][0]));
   
   bigGear1 = new Gear(2);
+  bigGear1.type = 3;
   bigGear1.viewWidth = viewWidth;
   bigGear1.viewLeftEdge = floor(VIEW_ZONES[bigGear1.id][0] * CAM_WIDTH);
+  bigGear1.initView(CAM_HEIGHT);
   
   bigGear2 = new Gear(4);
+  bigGear2.type = 3;
   bigGear2.viewWidth = viewWidth;
   bigGear2.viewLeftEdge = floor(VIEW_ZONES[bigGear2.id][0] * CAM_WIDTH);
+  bigGear2.initView(CAM_HEIGHT);
   
   bigGear3 = new Gear(7);
+  bigGear3.type = 3;
   bigGear3.viewWidth = viewWidth;
   bigGear3.viewLeftEdge = floor(VIEW_ZONES[bigGear3.id][0] * CAM_WIDTH);
+  bigGear3.initView(CAM_HEIGHT);
 
   // init video capture
   video = new Capture(this, CAM_WIDTH, CAM_HEIGHT, 30);
@@ -71,10 +75,6 @@ void setup() {
   // frames
   currentFrame = new PImage(CAM_WIDTH, CAM_HEIGHT);
   flippedFrame = new PImage(CAM_WIDTH, CAM_HEIGHT);
-
-  bigGear1View = new PImage(viewWidth, CAM_HEIGHT);
-  bigGear2View = new PImage(viewWidth, CAM_HEIGHT);
-  bigGear3View = new PImage(viewWidth, CAM_HEIGHT);
 }
 
 void draw() {
@@ -89,49 +89,48 @@ void draw() {
   
 
   // copy from currentFrame
-  copyViewZone(currentFrame, bigGear1View, bigGear1.viewLeftEdge);
-  copyViewZone(currentFrame, bigGear2View, bigGear2.viewLeftEdge);
-  copyViewZone(currentFrame, bigGear3View, bigGear3.viewLeftEdge);
+  copyViewZone(currentFrame, bigGear1);
+  copyViewZone(currentFrame, bigGear2);
+  copyViewZone(currentFrame, bigGear3);
   
   
   // draw camera views
-  //image(currentFrame, 0, 0, CAM_WIDTH, CAM_HEIGHT);
-  drawViewZone(bigGear1View, bigGear1.viewLeftEdge);
-  drawViewZone(bigGear2View, bigGear2.viewLeftEdge);
-  drawViewZone(bigGear3View, bigGear3.viewLeftEdge);
+  drawViewZone(bigGear1);
+  drawViewZone(bigGear2);
+  drawViewZone(bigGear3);
   
   
   // draw optical flow colors
-  drawOpticalFlow(bigGear1View, bigGear1.viewLeftEdge);
-  drawOpticalFlow(bigGear2View, bigGear2.viewLeftEdge);
-  drawOpticalFlow(bigGear3View, bigGear3.viewLeftEdge);
+  drawOpticalFlow(bigGear1);
+  drawOpticalFlow(bigGear2);
+  drawOpticalFlow(bigGear3);
 }
 
 
 // methods definitions
-void copyViewZone(PImage src, PImage target, int leftEdge) {
+void copyViewZone(PImage src, Gear gear) {
   for (int i = 0; i < CAM_HEIGHT; i++) {
     for (int j = 0; j < BIG_GEAR_VIEW_WIDTH; j++) {
-      target.set(j, i, src.get(j + leftEdge, i));
+      gear.view.set(j, i, src.get(j + gear.viewLeftEdge, i));
     }
   }
 }
 
-void drawViewZone(PImage src, int leftEdge) {
+void drawViewZone(Gear gear) {
   image(
-    src,
-    leftEdge, 0,
+    gear.view,
+    gear.viewLeftEdge, 0,
     BIG_GEAR_VIEW_WIDTH, CAM_HEIGHT
    );
 }
 
-void drawOpticalFlow(PImage src, int leftEdge) {
-  PVector flow;
-  float triggerThreshold = 0.5;
-  // TODO: add delay to reduce number of triggers
+void drawOpticalFlow(Gear gear) {
+    // TODO: add delay to reduce number of triggers
+
   
-  // big gear 1
-  opencv.loadImage(src);
+  PVector flow;
+  
+  opencv.loadImage(gear.view);
   opencv.calculateOpticalFlow();
   
   flow = opencv.getAverageFlow();
@@ -143,20 +142,20 @@ void drawOpticalFlow(PImage src, int leftEdge) {
   int red = (flow.x < 0) ? floor(redRatio * 255): 0;
   int blue = (flow.x > 0) ? floor(blueRatio * 255): 0;
 
-  if (abs(flow.x) > triggerThreshold) {
-    println("bg1 flow x: " + flow.x);
-    println("redRatio: " + redRatio + ", blueRatio: " + blueRatio);
-    
+  if (abs(flow.x) > MOTION_TRIGGER_THRESHOLD) {
     // draw rect according to flow direction
     // intensity of color indicates speed of movement
     if (flow.x < 0) {
       fill(red, 0, 0);
-    } else  {
+      println("trigger counter clockwise, ratio of " + redRatio);
+
+    } else if (flow.x > 0) {
       fill(0, 0, blue);
+      println("trigger clockwise, ratio of " + blueRatio);
     }
     
     rect(
-      CAM_WIDTH + leftEdge, 0,
+      CAM_WIDTH + gear.viewLeftEdge, 0,
       BIG_GEAR_VIEW_WIDTH, CAM_HEIGHT
     );
   }

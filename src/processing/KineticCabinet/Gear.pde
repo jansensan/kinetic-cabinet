@@ -5,7 +5,13 @@ class Gear {
   int viewLeftEdge;
   int viewWidth;
   
+  PImage view;
+  
   Gear(int _id) {
     id = _id;
+  }
+  
+  void initView(int viewHeight) {
+    view = new PImage(viewWidth, viewHeight);
   }
 }
