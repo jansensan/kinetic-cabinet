@@ -80,40 +80,22 @@ void setup() {
 void draw() {
   background(0);
 
-
   // copy video pixels
   currentFrame.copy(
     video, 
     0, 0, CAM_WIDTH, CAM_HEIGHT, 
     0, 0, CAM_WIDTH, CAM_HEIGHT
   );
-
-
-  // flip horizontally (mirror)
-  pushMatrix();
-  scale(-1.0, 1.0);
-
-  // copy from currentFrame
-  for (int i = 0; i < CAM_HEIGHT; i++) {
-    for (int j = 0; j < CAM_WIDTH; j++) {
-      int newX = (CAM_WIDTH - 1) - j;
-      flippedFrame.set(newX, i, currentFrame.get(j, i));
-    }
-  }
-
-  // reset matrix
-  popMatrix();
   
 
-  // copy from flippedFrame
-  copyViewZone(flippedFrame, bigGear1View, bigGear1.viewLeftEdge);
-  copyViewZone(flippedFrame, bigGear2View, bigGear2.viewLeftEdge);
-  copyViewZone(flippedFrame, bigGear3View, bigGear3.viewLeftEdge);
+  // copy from currentFrame
+  copyViewZone(currentFrame, bigGear1View, bigGear1.viewLeftEdge);
+  copyViewZone(currentFrame, bigGear2View, bigGear2.viewLeftEdge);
+  copyViewZone(currentFrame, bigGear3View, bigGear3.viewLeftEdge);
   
   
   // draw camera views
   //image(currentFrame, 0, 0, CAM_WIDTH, CAM_HEIGHT);
-  //image(flippedFrame, CAM_WIDTH, 0, CAM_WIDTH, CAM_HEIGHT);
   drawViewZone(bigGear1View, bigGear1.viewLeftEdge);
   drawViewZone(bigGear2View, bigGear2.viewLeftEdge);
   drawViewZone(bigGear3View, bigGear3.viewLeftEdge);
