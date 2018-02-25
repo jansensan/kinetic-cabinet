@@ -6,33 +6,30 @@ int CAM_WIDTH = 640;
 int CAM_HEIGHT = 480;
 
 float[][] VIEW_ZONES = {
-  {0.000, 0.060},
-  {0.061, 0.146},
-  {0.147, 0.256},
-  {0.257, 0.342},
-  {0.343, 0.452},
-  {0.453, 0.512},
-  {0.513, 0.598},
-  {0.599, 0.708},
-  {0.709, 0.794},
-  {0.795, 0.854},
-  {0.855, 0.940},
-  {0.941, 1.000}
+  {0.000, 0.060}, // small
+  {0.061, 0.146}, // medium
+  {0.147, 0.256}, // big
+  {0.257, 0.342}, // medium
+  {0.343, 0.452}, // big
+  {0.453, 0.512}, // small
+  {0.513, 0.598}, // medium
+  {0.599, 0.708}, // big
+  {0.709, 0.794}, // medium
+  {0.795, 0.854}, // small
+  {0.855, 0.940}, // medium
+  {0.941, 1.000}  // small
 };
 
-// gear IDs
-int BIG_GEAR_1 = 2;
-int BIG_GEAR_2 = 4;
-int BIG_GEAR_3 = 7;
-
-int BIG_GEAR_VIEW_WIDTH = floor(CAM_WIDTH * (VIEW_ZONES[BIG_GEAR_1][1] - VIEW_ZONES[BIG_GEAR_1][0]));
-int BIG_GEAR_1_X = floor(VIEW_ZONES[BIG_GEAR_1][0] * CAM_WIDTH);
-int BIG_GEAR_2_X = floor(VIEW_ZONES[BIG_GEAR_2][0] * CAM_WIDTH);
-int BIG_GEAR_3_X = floor(VIEW_ZONES[BIG_GEAR_3][0] * CAM_WIDTH);
-
+int SMALL_GEAR_VIEW_WIDTH = floor(CAM_WIDTH * (VIEW_ZONES[0][1] - VIEW_ZONES[0][0]));
+int MEDIUM_GEAR_VIEW_WIDTH = floor(CAM_WIDTH * (VIEW_ZONES[1][1] - VIEW_ZONES[1][0]));
+int BIG_GEAR_VIEW_WIDTH = floor(CAM_WIDTH * (VIEW_ZONES[2][1] - VIEW_ZONES[2][0]));
 
 OpenCV opencv;
 Capture video;
+
+Gear bigGear1;
+Gear bigGear2;
+Gear bigGear3;
 
 PImage currentFrame;
 PImage flippedFrame;
@@ -48,18 +45,36 @@ float maxRightFlow = 0;
 // processing setup
 void setup() {
   size(1280, 480);
+  
+  // declare gear data
+  int viewWidth = floor(CAM_WIDTH * (VIEW_ZONES[2][1] - VIEW_ZONES[2][0]));
+  
+  bigGear1 = new Gear(2);
+  bigGear1.viewWidth = viewWidth;
+  bigGear1.viewLeftEdge = floor(VIEW_ZONES[bigGear1.id][0] * CAM_WIDTH);
+  
+  bigGear2 = new Gear(4);
+  bigGear2.viewWidth = viewWidth;
+  bigGear2.viewLeftEdge = floor(VIEW_ZONES[bigGear2.id][0] * CAM_WIDTH);
+  
+  bigGear3 = new Gear(7);
+  bigGear3.viewWidth = viewWidth;
+  bigGear3.viewLeftEdge = floor(VIEW_ZONES[bigGear3.id][0] * CAM_WIDTH);
 
+  // init video capture
   video = new Capture(this, CAM_WIDTH, CAM_HEIGHT, 30);
   video.start();
 
+  // init open cv
   opencv = new OpenCV(this, CAM_WIDTH, CAM_HEIGHT);
 
+  // frames
   currentFrame = new PImage(CAM_WIDTH, CAM_HEIGHT);
   flippedFrame = new PImage(CAM_WIDTH, CAM_HEIGHT);
 
-  bigGear1View = new PImage(BIG_GEAR_VIEW_WIDTH, CAM_HEIGHT);
-  bigGear2View = new PImage(BIG_GEAR_VIEW_WIDTH, CAM_HEIGHT);
-  bigGear3View = new PImage(BIG_GEAR_VIEW_WIDTH, CAM_HEIGHT);
+  bigGear1View = new PImage(viewWidth, CAM_HEIGHT);
+  bigGear2View = new PImage(viewWidth, CAM_HEIGHT);
+  bigGear3View = new PImage(viewWidth, CAM_HEIGHT);
 }
 
 void draw() {
@@ -91,20 +106,23 @@ void draw() {
   
 
   // copy from flippedFrame
-  copyViewZone(flippedFrame, bigGear1View, BIG_GEAR_1_X);
-  copyViewZone(flippedFrame, bigGear2View, BIG_GEAR_2_X);
-  copyViewZone(flippedFrame, bigGear3View, BIG_GEAR_3_X);
+  copyViewZone(flippedFrame, bigGear1View, bigGear1.viewLeftEdge);
+  copyViewZone(flippedFrame, bigGear2View, bigGear2.viewLeftEdge);
+  copyViewZone(flippedFrame, bigGear3View, bigGear3.viewLeftEdge);
   
   
-  // draw
+  // draw camera views
   //image(currentFrame, 0, 0, CAM_WIDTH, CAM_HEIGHT);
   //image(flippedFrame, CAM_WIDTH, 0, CAM_WIDTH, CAM_HEIGHT);
-  drawViewZone(bigGear1View, BIG_GEAR_1_X);
-  drawViewZone(bigGear2View, BIG_GEAR_2_X);
-  drawViewZone(bigGear3View, BIG_GEAR_3_X);
+  drawViewZone(bigGear1View, bigGear1.viewLeftEdge);
+  drawViewZone(bigGear2View, bigGear2.viewLeftEdge);
+  drawViewZone(bigGear3View, bigGear3.viewLeftEdge);
   
   
-  calculateOpticalFlow(bigGear1View, BIG_GEAR_1_X);
+  // draw optical flow colors
+  drawOpticalFlow(bigGear1View, bigGear1.viewLeftEdge);
+  drawOpticalFlow(bigGear2View, bigGear2.viewLeftEdge);
+  drawOpticalFlow(bigGear3View, bigGear3.viewLeftEdge);
 }
 
 
@@ -125,7 +143,7 @@ void drawViewZone(PImage src, int leftEdge) {
    );
 }
 
-void calculateOpticalFlow(PImage src, int leftEdge) {
+void drawOpticalFlow(PImage src, int leftEdge) {
   PVector flow;
   float triggerThreshold = 0.5;
   // TODO: add delay to reduce number of triggers
