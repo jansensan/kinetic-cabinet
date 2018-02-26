@@ -10,7 +10,7 @@ import processing.video.Capture;
 int CAM_WIDTH = 640;
 int CAM_HEIGHT = 480;
 
-float MOTION_TRIGGER_THRESHOLD = 0.75;
+float MOTION_TRIGGER_THRESHOLD = 8000;
 
 color BLACK = #000000;
 color RED = #ff0000;
@@ -196,18 +196,26 @@ int getFlowDirection(PImage src) {
   for (int i = 0; i < src.height; i++) {
     for (int j = 0; j < src.width; j++) {
 
-      // TODO: improve color comparison to detect direction
       color pixelColor = src.get(j, i);
+      int pixelRed = -1;
+      int pixelBlue = -1;
+      
       if (pixelColor != BLACK) {
-        int diffToRed = abs(abs(RED) - abs(pixelColor));
-        int diffToBlue = abs(abs(BLUE) - abs(pixelColor));
+        pixelRed = pixelColor & 255;
+        pixelBlue = (pixelColor >> 16) & 255;
+    
+        int diffToRed = 255 - pixelRed;
+        int diffToBlue = 255 - pixelBlue;
         
+        // color is closer to red
         if (diffToRed < diffToBlue) {
           // moving right
-          direction++;
-        } else {
-          // moving left
           direction--;
+
+        // color closer to blue
+        } else if (diffToRed > diffToBlue) {
+          // moving left
+          direction++;
         }
       }
 
@@ -219,11 +227,15 @@ int getFlowDirection(PImage src) {
 
 String getDirectionLabel(int direction) {
   String label = "";
-  if (direction > 0) {
-    label = "right";
-  } else if (direction < 0) {
-    label = "left";
+
+  if (abs(direction) > MOTION_TRIGGER_THRESHOLD) {
+    if (direction > 0) {
+      label = "right";
+    } else if (direction < 0) {
+      label = "left";
+    }
   }
+
   return label;
 }
 
