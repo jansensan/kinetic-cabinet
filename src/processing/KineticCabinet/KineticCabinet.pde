@@ -1,5 +1,10 @@
-import gab.opencv.*;
-import processing.video.*;
+import com.thomasdiewald.pixelflow.java.DwPixelFlow;
+import com.thomasdiewald.pixelflow.java.imageprocessing.DwOpticalFlow;
+import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
+
+import processing.core.*;
+import processing.opengl.PGraphics2D;
+import processing.video.Capture;
 
 
 int CAM_WIDTH = 640;
@@ -26,15 +31,19 @@ int SMALL_GEAR_VIEW_WIDTH = floor(CAM_WIDTH * (VIEW_ZONES[0][1] - VIEW_ZONES[0][
 int MEDIUM_GEAR_VIEW_WIDTH = floor(CAM_WIDTH * (VIEW_ZONES[1][1] - VIEW_ZONES[1][0]));
 int BIG_GEAR_VIEW_WIDTH = floor(CAM_WIDTH * (VIEW_ZONES[2][1] - VIEW_ZONES[2][0]));
 
-OpenCV opencv;
+DwPixelFlow context;
+DwOpticalFlow opticalflow;
+
+PGraphics2D captureFrame;
+PGraphics2D flowFrame;
+PImage screenshot;
+
 Capture video;
 
 Gear bigGear1;
 Gear bigGear2;
 Gear bigGear3;
 
-PImage currentFrame;
-PImage flippedFrame;
 
 float maxLeftFlow = 0;
 float maxRightFlow = 0;
@@ -42,68 +51,111 @@ float maxRightFlow = 0;
 
 // processing setup
 void setup() {
-  size(1280, 480);
-  
+  size(1280, 480, P2D);
+
   // declare gear data
   int viewWidth = floor(CAM_WIDTH * (VIEW_ZONES[2][1] - VIEW_ZONES[2][0]));
-  
+
   bigGear1 = new Gear(2);
   bigGear1.type = 3;
   bigGear1.viewWidth = viewWidth;
   bigGear1.viewLeftEdge = floor(VIEW_ZONES[bigGear1.id][0] * CAM_WIDTH);
   bigGear1.initView(CAM_HEIGHT);
-  
+
   bigGear2 = new Gear(4);
   bigGear2.type = 3;
   bigGear2.viewWidth = viewWidth;
   bigGear2.viewLeftEdge = floor(VIEW_ZONES[bigGear2.id][0] * CAM_WIDTH);
   bigGear2.initView(CAM_HEIGHT);
-  
+
   bigGear3 = new Gear(7);
   bigGear3.type = 3;
   bigGear3.viewWidth = viewWidth;
   bigGear3.viewLeftEdge = floor(VIEW_ZONES[bigGear3.id][0] * CAM_WIDTH);
   bigGear3.initView(CAM_HEIGHT);
 
+  // main library context
+  context = new DwPixelFlow(this);
+  context.print();
+  context.printGL();
+
+  // optical flow
+  opticalflow = new DwOpticalFlow(context, CAM_WIDTH, CAM_HEIGHT);
+
   // init video capture
   video = new Capture(this, CAM_WIDTH, CAM_HEIGHT, 30);
   video.start();
 
-  // init open cv
-  opencv = new OpenCV(this, CAM_WIDTH, CAM_HEIGHT);
-
   // frames
-  currentFrame = new PImage(CAM_WIDTH, CAM_HEIGHT);
-  flippedFrame = new PImage(CAM_WIDTH, CAM_HEIGHT);
+  captureFrame = (PGraphics2D) createGraphics(CAM_WIDTH, CAM_HEIGHT, P2D);
+  captureFrame.noSmooth();
+
+  flowFrame = (PGraphics2D) createGraphics(CAM_WIDTH, CAM_HEIGHT, P2D);
+  flowFrame.smooth(4);
+  
+  screenshot = new PImage(CAM_WIDTH, CAM_HEIGHT);
+
+  background(0);
+  frameRate(60);
 }
 
 void draw() {
   background(0);
 
-  // copy video pixels
-  currentFrame.copy(
-    video, 
-    0, 0, CAM_WIDTH, CAM_HEIGHT, 
-    0, 0, CAM_WIDTH, CAM_HEIGHT
-  );
+  // render to offscreenbuffer
+  captureFrame.beginDraw();
+  captureFrame.image(video, 0, 0);
+  captureFrame.endDraw();
+
+  // update Optical Flow
+  opticalflow.update(captureFrame);
+
+  // rgba -> luminance (just for display)
+  DwFilter.get(context).luminance.apply(captureFrame, captureFrame);
+
+
+  // render Optical Flow
+  flowFrame.beginDraw();
+  flowFrame.clear();
+
+  // uncomment to render camera
+  // flowFrame.image(captureFrame, 0, 0, CAM_WIDTH, CAM_HEIGHT);
+
+  flowFrame.endDraw();
+
+
+  // flow visualizations
+  opticalflow.param.display_mode = 0;
+  opticalflow.renderVelocityShading(flowFrame);
+  opticalflow.renderVelocityStreams(flowFrame, 5);
+
+  // display result
+  background(0);
+  image(flowFrame, 0, 0);
+
+  // get screenshot
+  loadPixels();
+  int pixelIndex = -1;
+  for (int i = 0; i < CAM_HEIGHT; i++) {
+    for (int j = 0; j < CAM_WIDTH; j++) {
+      pixelIndex++;
+      screenshot.set(j, i, pixels[pixelIndex]);
+    }
+    pixelIndex += CAM_WIDTH;
+  }
+  //image(screenshot, CAM_WIDTH, 0);
   
 
   // copy from currentFrame
-  copyViewZone(currentFrame, bigGear1);
-  copyViewZone(currentFrame, bigGear2);
-  copyViewZone(currentFrame, bigGear3);
-  
-  
+  copyViewZone(screenshot, bigGear1);
+  copyViewZone(screenshot, bigGear2);
+  copyViewZone(screenshot, bigGear3);
+
+
   // draw camera views
   drawViewZone(bigGear1);
   drawViewZone(bigGear2);
   drawViewZone(bigGear3);
-  
-  
-  // draw optical flow colors
-  drawOpticalFlow(bigGear1);
-  drawOpticalFlow(bigGear2);
-  drawOpticalFlow(bigGear3);
 }
 
 
@@ -119,46 +171,9 @@ void copyViewZone(PImage src, Gear gear) {
 void drawViewZone(Gear gear) {
   image(
     gear.view,
-    gear.viewLeftEdge, 0,
+    CAM_WIDTH + gear.viewLeftEdge, 0,
     BIG_GEAR_VIEW_WIDTH, CAM_HEIGHT
    );
-}
-
-void drawOpticalFlow(Gear gear) {
-    // TODO: add delay to reduce number of triggers
-
-  
-  PVector flow;
-  
-  opencv.loadImage(gear.view);
-  opencv.calculateOpticalFlow();
-  
-  flow = opencv.getAverageFlow();
-  maxLeftFlow = min(maxLeftFlow, flow.x);
-  maxRightFlow = max(maxRightFlow, flow.x);
-
-  float redRatio = abs(flow.x / maxLeftFlow);
-  float blueRatio = abs(flow.x / maxRightFlow);
-  int red = (flow.x < 0) ? floor(redRatio * 255): 0;
-  int blue = (flow.x > 0) ? floor(blueRatio * 255): 0;
-
-  if (abs(flow.x) > MOTION_TRIGGER_THRESHOLD) {
-    // draw rect according to flow direction
-    // intensity of color indicates speed of movement
-    if (flow.x < 0) {
-      fill(red, 0, 0);
-      println("trigger counter clockwise, ratio of " + redRatio);
-
-    } else if (flow.x > 0) {
-      fill(0, 0, blue);
-      println("trigger clockwise, ratio of " + blueRatio);
-    }
-    
-    rect(
-      CAM_WIDTH + gear.viewLeftEdge, 0,
-      BIG_GEAR_VIEW_WIDTH, CAM_HEIGHT
-    );
-  }
 }
 
 
