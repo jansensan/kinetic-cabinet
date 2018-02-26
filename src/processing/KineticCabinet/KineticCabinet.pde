@@ -12,6 +12,10 @@ int CAM_HEIGHT = 480;
 
 float MOTION_TRIGGER_THRESHOLD = 0.75;
 
+color BLACK = #000000;
+color RED = #ff0000;
+color BLUE = #0000ff;
+
 float[][] VIEW_ZONES = {
   {0.000, 0.060}, // small
   {0.061, 0.146}, // medium
@@ -156,6 +160,16 @@ void draw() {
   drawViewZone(bigGear1);
   drawViewZone(bigGear2);
   drawViewZone(bigGear3);
+  
+  // label directions
+  String bg1Direction = getDirectionLabel(getFlowDirection(bigGear1.view));
+  String bg2Direction = getDirectionLabel(getFlowDirection(bigGear2.view));
+  String bg3Direction = getDirectionLabel(getFlowDirection(bigGear3.view));
+
+  textSize(16);
+  text(bg1Direction, CAM_WIDTH + bigGear1.viewLeftEdge, 24);
+  text(bg2Direction, CAM_WIDTH + bigGear2.viewLeftEdge, 24);
+  text(bg3Direction, CAM_WIDTH + bigGear3.viewLeftEdge, 24);
 }
 
 
@@ -174,6 +188,43 @@ void drawViewZone(Gear gear) {
     CAM_WIDTH + gear.viewLeftEdge, 0,
     BIG_GEAR_VIEW_WIDTH, CAM_HEIGHT
    );
+}
+
+int getFlowDirection(PImage src) {
+  int direction = 0;
+
+  for (int i = 0; i < src.height; i++) {
+    for (int j = 0; j < src.width; j++) {
+
+      // TODO: improve color comparison to detect direction
+      color pixelColor = src.get(j, i);
+      if (pixelColor != BLACK) {
+        int diffToRed = abs(abs(RED) - abs(pixelColor));
+        int diffToBlue = abs(abs(BLUE) - abs(pixelColor));
+        
+        if (diffToRed < diffToBlue) {
+          // moving right
+          direction++;
+        } else {
+          // moving left
+          direction--;
+        }
+      }
+
+    }
+  }
+  
+  return direction;
+}
+
+String getDirectionLabel(int direction) {
+  String label = "";
+  if (direction > 0) {
+    label = "right";
+  } else if (direction < 0) {
+    label = "left";
+  }
+  return label;
 }
 
 
