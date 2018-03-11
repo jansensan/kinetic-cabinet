@@ -6,11 +6,13 @@ import processing.core.*;
 import processing.opengl.PGraphics2D;
 import processing.video.Capture;
 
+boolean IS_PROD = true;
 
-int CAM_WIDTH = 640;
-int CAM_HEIGHT = 480;
+int CAM_WIDTH = 320;
+int CAM_HEIGHT = 240;
 
-float MOTION_TRIGGER_THRESHOLD = 8000;
+// threshold over which detected motion can cause an action trigger
+float MOTION_TRIGGER_THRESHOLD = (CAM_WIDTH * CAM_HEIGHT) / 40;
 
 color BLACK = #000000;
 color RED = #ff0000;
@@ -54,9 +56,19 @@ float maxRightFlow = 0;
 
 
 // processing setup
-void setup() {
-  size(1280, 480, P2D);
+void settings() {
+  int sketchWidth;
+  
+  if (IS_PROD) {
+    sketchWidth = CAM_WIDTH;
+  } else {
+    sketchWidth = CAM_WIDTH * 2;
+  }
+  
+  size(sketchWidth, CAM_HEIGHT, P2D);
+}
 
+void setup() {
   // declare gear data
   int viewWidth = floor(CAM_WIDTH * (VIEW_ZONES[2][1] - VIEW_ZONES[2][0]));
 
@@ -121,12 +133,8 @@ void draw() {
   // render Optical Flow
   flowFrame.beginDraw();
   flowFrame.clear();
-
-  // uncomment to render camera
-  // flowFrame.image(captureFrame, 0, 0, CAM_WIDTH, CAM_HEIGHT);
-
+  // flowFrame.image(captureFrame, 0, 0, CAM_WIDTH, CAM_HEIGHT); // uncomment to render camera onscreen
   flowFrame.endDraw();
-
 
   // flow visualizations
   opticalflow.param.display_mode = 0;
@@ -137,24 +145,15 @@ void draw() {
   background(0);
   image(flowFrame, 0, 0);
 
-  // get screenshot
-  loadPixels();
-  int pixelIndex = -1;
-  for (int i = 0; i < CAM_HEIGHT; i++) {
-    for (int j = 0; j < CAM_WIDTH; j++) {
-      pixelIndex++;
-      screenshot.set(j, i, pixels[pixelIndex]);
-    }
-    pixelIndex += CAM_WIDTH;
-  }
-  //image(screenshot, CAM_WIDTH, 0);
+  // save screenshot to image
+  captureScreenshot();  
   
+  if (IS_PROD) background(0);
 
   // copy from currentFrame
   copyViewZone(screenshot, bigGear1);
   copyViewZone(screenshot, bigGear2);
   copyViewZone(screenshot, bigGear3);
-
 
   // draw camera views
   drawViewZone(bigGear1);
@@ -166,14 +165,27 @@ void draw() {
   String bg2Direction = getDirectionLabel(getFlowDirection(bigGear2.view));
   String bg3Direction = getDirectionLabel(getFlowDirection(bigGear3.view));
 
+  int labelLeftPadding = (IS_PROD) ? 0 : CAM_WIDTH;
   textSize(16);
-  text(bg1Direction, CAM_WIDTH + bigGear1.viewLeftEdge, 24);
-  text(bg2Direction, CAM_WIDTH + bigGear2.viewLeftEdge, 24);
-  text(bg3Direction, CAM_WIDTH + bigGear3.viewLeftEdge, 24);
+  text(bg1Direction, labelLeftPadding + bigGear1.viewLeftEdge, 24);
+  text(bg2Direction, labelLeftPadding + bigGear2.viewLeftEdge, 24);
+  text(bg3Direction, labelLeftPadding + bigGear3.viewLeftEdge, 24);
 }
 
 
 // methods definitions
+void captureScreenshot() {
+  loadPixels();
+  int pixelIndex = -1;
+  for (int i = 0; i < CAM_HEIGHT; i++) {
+    for (int j = 0; j < CAM_WIDTH; j++) {
+      pixelIndex++;
+      screenshot.set(j, i, pixels[pixelIndex]);
+    }
+    if (!IS_PROD) pixelIndex += CAM_WIDTH;
+  }
+}
+
 void copyViewZone(PImage src, Gear gear) {
   for (int i = 0; i < CAM_HEIGHT; i++) {
     for (int j = 0; j < BIG_GEAR_VIEW_WIDTH; j++) {
@@ -183,11 +195,12 @@ void copyViewZone(PImage src, Gear gear) {
 }
 
 void drawViewZone(Gear gear) {
+  int imageX = (IS_PROD) ? gear.viewLeftEdge : CAM_WIDTH + gear.viewLeftEdge;
   image(
     gear.view,
-    CAM_WIDTH + gear.viewLeftEdge, 0,
+    imageX, 0,
     BIG_GEAR_VIEW_WIDTH, CAM_HEIGHT
-   );
+  );
 }
 
 int getFlowDirection(PImage src) {
