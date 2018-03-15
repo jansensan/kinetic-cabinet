@@ -1,22 +1,18 @@
-import com.thomasdiewald.pixelflow.java.DwPixelFlow;
-import com.thomasdiewald.pixelflow.java.imageprocessing.DwOpticalFlow;
-import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
+import gab.opencv.*;
 
 import processing.core.*;
 import processing.opengl.PGraphics2D;
 import processing.video.Capture;
 
-boolean IS_PROD = true;
+
+// constants
+boolean IS_PROD = false;
+boolean IS_VERBOSE = false;
 
 int CAM_WIDTH = 320;
 int CAM_HEIGHT = 240;
 
-// threshold over which detected motion can cause an action trigger
-float MOTION_TRIGGER_THRESHOLD = (CAM_WIDTH * CAM_HEIGHT) / 40;
-
-color BLACK = #000000;
-color RED = #ff0000;
-color BLUE = #0000ff;
+int LABEL_SIZE = 12;
 
 float[][] VIEW_ZONES = {
   {0.000, 0.060}, // small
@@ -33,23 +29,16 @@ float[][] VIEW_ZONES = {
   {0.941, 1.000}  // small
 };
 
-int SMALL_GEAR_VIEW_WIDTH = floor(CAM_WIDTH * (VIEW_ZONES[0][1] - VIEW_ZONES[0][0]));
-int MEDIUM_GEAR_VIEW_WIDTH = floor(CAM_WIDTH * (VIEW_ZONES[1][1] - VIEW_ZONES[1][0]));
-int BIG_GEAR_VIEW_WIDTH = floor(CAM_WIDTH * (VIEW_ZONES[2][1] - VIEW_ZONES[2][0]));
 
-DwPixelFlow context;
-DwOpticalFlow opticalflow;
-
-PGraphics2D captureFrame;
-PGraphics2D flowFrame;
+// vars
 PImage screenshot;
 
+OpenCV cv;
 Capture video;
 
 Gear bigGear1;
 Gear bigGear2;
 Gear bigGear3;
-
 
 float maxLeftFlow = 0;
 float maxRightFlow = 0;
@@ -70,106 +59,78 @@ void settings() {
 
 void setup() {
   // declare gear data
-  int viewWidth = floor(CAM_WIDTH * (VIEW_ZONES[2][1] - VIEW_ZONES[2][0]));
-
   bigGear1 = new Gear(2);
   bigGear1.type = 3;
-  bigGear1.viewWidth = viewWidth;
-  bigGear1.viewLeftEdge = floor(VIEW_ZONES[bigGear1.id][0] * CAM_WIDTH);
-  bigGear1.initView(CAM_HEIGHT);
+  bigGear1.init(VIEW_ZONES[bigGear1.id], CAM_WIDTH, CAM_HEIGHT);
 
   bigGear2 = new Gear(4);
   bigGear2.type = 3;
-  bigGear2.viewWidth = viewWidth;
-  bigGear2.viewLeftEdge = floor(VIEW_ZONES[bigGear2.id][0] * CAM_WIDTH);
-  bigGear2.initView(CAM_HEIGHT);
+  bigGear2.init(VIEW_ZONES[bigGear2.id], CAM_WIDTH, CAM_HEIGHT);
 
   bigGear3 = new Gear(7);
   bigGear3.type = 3;
-  bigGear3.viewWidth = viewWidth;
-  bigGear3.viewLeftEdge = floor(VIEW_ZONES[bigGear3.id][0] * CAM_WIDTH);
-  bigGear3.initView(CAM_HEIGHT);
+  bigGear3.init(VIEW_ZONES[bigGear3.id], CAM_WIDTH, CAM_HEIGHT);
 
-  // main library context
-  context = new DwPixelFlow(this);
-  context.print();
-  context.printGL();
-
-  // optical flow
-  opticalflow = new DwOpticalFlow(context, CAM_WIDTH, CAM_HEIGHT);
+  // open cv
+  cv = new OpenCV(this, CAM_WIDTH, CAM_HEIGHT);
 
   // init video capture
   video = new Capture(this, CAM_WIDTH, CAM_HEIGHT, 30);
   video.start();
-
-  // frames
-  captureFrame = (PGraphics2D) createGraphics(CAM_WIDTH, CAM_HEIGHT, P2D);
-  captureFrame.noSmooth();
-
-  flowFrame = (PGraphics2D) createGraphics(CAM_WIDTH, CAM_HEIGHT, P2D);
-  flowFrame.smooth(4);
   
   screenshot = new PImage(CAM_WIDTH, CAM_HEIGHT);
 
   background(0);
-  frameRate(60);
+  frameRate(30);
 }
 
 void draw() {
   background(0);
 
-  // render to offscreenbuffer
-  captureFrame.beginDraw();
-  captureFrame.image(video, 0, 0);
-  captureFrame.endDraw();
-
   // update Optical Flow
-  opticalflow.update(captureFrame);
-
-  // rgba -> luminance (just for display)
-  DwFilter.get(context).luminance.apply(captureFrame, captureFrame);
-
-
-  // render Optical Flow
-  flowFrame.beginDraw();
-  flowFrame.clear();
-  // flowFrame.image(captureFrame, 0, 0, CAM_WIDTH, CAM_HEIGHT); // uncomment to render camera onscreen
-  flowFrame.endDraw();
-
-  // flow visualizations
-  opticalflow.param.display_mode = 0;
-  opticalflow.renderVelocityShading(flowFrame);
-  opticalflow.renderVelocityStreams(flowFrame, 5);
-
+  cv.loadImage(video);
+  cv.calculateOpticalFlow();
+ 
+  // calculate flow per gear view zone
+  updateBigGearFlow(bigGear1);
+  updateBigGearFlow(bigGear2);
+  updateBigGearFlow(bigGear3);
+  
   // display result
   background(0);
-  image(flowFrame, 0, 0);
+  if (!IS_PROD) {
+    // draw optical flow
+    stroke(255, 160, 160);
+    cv.drawOpticalFlow();
 
-  // save screenshot to image
-  captureScreenshot();  
+    // save screenshot to image
+    captureScreenshot(); 
+
+    // copy from currentFrame
+    copyViewZone(screenshot, bigGear1);
+    copyViewZone(screenshot, bigGear2);
+    copyViewZone(screenshot, bigGear3);
   
-  if (IS_PROD) background(0);
-
-  // copy from currentFrame
-  copyViewZone(screenshot, bigGear1);
-  copyViewZone(screenshot, bigGear2);
-  copyViewZone(screenshot, bigGear3);
-
-  // draw camera views
-  drawViewZone(bigGear1);
-  drawViewZone(bigGear2);
-  drawViewZone(bigGear3);
+    // draw camera views
+    drawViewZone(bigGear1);
+    drawViewZone(bigGear2);
+    drawViewZone(bigGear3);
+    
+    // draw directions labels
+    if (bigGear1.isTriggered) {
+      drawDirectionLabel(bigGear1);
+    }
+    if (bigGear2.isTriggered) {
+      drawDirectionLabel(bigGear2);
+    }
+    if (bigGear3.isTriggered) {
+      drawDirectionLabel(bigGear3);
+    }
+  }
   
-  // label directions
-  String bg1Direction = getDirectionLabel(getFlowDirection(bigGear1.view));
-  String bg2Direction = getDirectionLabel(getFlowDirection(bigGear2.view));
-  String bg3Direction = getDirectionLabel(getFlowDirection(bigGear3.view));
-
-  int labelLeftPadding = (IS_PROD) ? 0 : CAM_WIDTH;
-  textSize(16);
-  text(bg1Direction, labelLeftPadding + bigGear1.viewLeftEdge, 24);
-  text(bg2Direction, labelLeftPadding + bigGear2.viewLeftEdge, 24);
-  text(bg3Direction, labelLeftPadding + bigGear3.viewLeftEdge, 24);
+  bigGear1.update();
+  bigGear2.update();
+  bigGear3.update();
 }
 
 
@@ -187,69 +148,55 @@ void captureScreenshot() {
 }
 
 void copyViewZone(PImage src, Gear gear) {
+  // error handling
+  if (gear.viewZone == null) {
+    if (IS_VERBOSE) println("Warning at KineticCabinet#copyViewZone: viewZone null for gear with id " + gear.id); 
+    return;
+  }
+  
   for (int i = 0; i < CAM_HEIGHT; i++) {
-    for (int j = 0; j < BIG_GEAR_VIEW_WIDTH; j++) {
-      gear.view.set(j, i, src.get(j + gear.viewLeftEdge, i));
+    for (int j = 0; j < gear.viewZone.w; j++) {
+      gear.view.set(j, i, src.get(j + gear.viewZone.x, i));
     }
   }
+}
+
+void drawDirectionLabel(Gear gear) {
+  String label = "";
+  float flow = gear.getAverageFlow();
+  if (flow > 0) {
+    label = "right";
+  } else if (flow < 0) {
+    label = "left";
+  }
+  
+  int labelLeftPadding = (IS_PROD) ? 0 : CAM_WIDTH;
+  textSize(LABEL_SIZE);
+  text(label, labelLeftPadding + gear.viewZone.x, 24);
 }
 
 void drawViewZone(Gear gear) {
-  int imageX = (IS_PROD) ? gear.viewLeftEdge : CAM_WIDTH + gear.viewLeftEdge;
+  // error handling
+  if (gear.viewZone == null) {
+    if (IS_VERBOSE) println("Warning at KineticCabinet#drawViewZone: viewZone null for gear with id " + gear.id); 
+    return;
+  }
+  
+  int imageX = (IS_PROD) ? gear.viewZone.x : CAM_WIDTH + gear.viewZone.x;
   image(
     gear.view,
     imageX, 0,
-    BIG_GEAR_VIEW_WIDTH, CAM_HEIGHT
+    gear.viewZone.w, CAM_HEIGHT
   );
 }
 
-int getFlowDirection(PImage src) {
-  int direction = 0;
-
-  for (int i = 0; i < src.height; i++) {
-    for (int j = 0; j < src.width; j++) {
-
-      color pixelColor = src.get(j, i);
-      int pixelRed = -1;
-      int pixelBlue = -1;
-      
-      if (pixelColor != BLACK) {
-        pixelRed = pixelColor & 255;
-        pixelBlue = (pixelColor >> 16) & 255;
-    
-        int diffToRed = 255 - pixelRed;
-        int diffToBlue = 255 - pixelBlue;
-        
-        // color is closer to red
-        if (diffToRed < diffToBlue) {
-          // moving right
-          direction--;
-
-        // color closer to blue
-        } else if (diffToRed > diffToBlue) {
-          // moving left
-          direction++;
-        }
-      }
-
-    }
-  }
-  
-  return direction;
-}
-
-String getDirectionLabel(int direction) {
-  String label = "";
-
-  if (abs(direction) > MOTION_TRIGGER_THRESHOLD) {
-    if (direction > 0) {
-      label = "right";
-    } else if (direction < 0) {
-      label = "left";
-    }
-  }
-
-  return label;
+void updateBigGearFlow(Gear gear) {
+  PVector flowInRegion = cv.getAverageFlowInRegion(
+    gear.viewZone.x, gear.viewZone.y, 
+    gear.viewZone.w, gear.viewZone.h
+  );
+  gear.updateFlow(flowInRegion.x);
+  gear.analyzeIfTriggered();
 }
 
 
