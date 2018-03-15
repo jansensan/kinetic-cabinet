@@ -2,7 +2,9 @@ import gab.opencv.*;
 
 import processing.core.*;
 import processing.opengl.PGraphics2D;
+
 import processing.video.Capture;
+// import gohai.glvideo.*;
 
 
 // constants
@@ -35,6 +37,7 @@ PImage screenshot;
 
 OpenCV cv;
 Capture video;
+// GLCapture video;
 
 Gear bigGear1;
 Gear bigGear2;
@@ -76,6 +79,7 @@ void setup() {
 
   // init video capture
   video = new Capture(this, CAM_WIDTH, CAM_HEIGHT, 30);
+  // video = new GLCapture(this);
   video.start();
   
   screenshot = new PImage(CAM_WIDTH, CAM_HEIGHT);
@@ -202,5 +206,6 @@ void updateBigGearFlow(Gear gear) {
 
 // events
 void captureEvent(Capture video) {
+// void captureEvent(GLCapture video) {
   video.read();
 }
