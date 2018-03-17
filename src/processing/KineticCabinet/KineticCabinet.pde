@@ -16,6 +16,7 @@ int CAM_HEIGHT = 240;
 
 int LABEL_SIZE = 12;
 
+// as viewed from the front of the cabinet
 float[][] VIEW_ZONES = {
   {0.000, 0.060}, // small
   {0.061, 0.146}, // medium
@@ -38,6 +39,17 @@ PImage screenshot;
 OpenCV cv;
 Capture video;
 // GLCapture video;
+
+Gear smallGear1;
+Gear smallGear2;
+Gear smallGear3;
+Gear smallGear4;
+
+Gear mediumGear1;
+Gear mediumGear2;
+Gear mediumGear3;
+Gear mediumGear4;
+Gear mediumGear5;
 
 Gear bigGear1;
 Gear bigGear2;
@@ -62,17 +74,57 @@ void settings() {
 
 void setup() {
   // declare gear data
-  bigGear1 = new Gear(2);
-  bigGear1.type = 3;
-  bigGear1.init(VIEW_ZONES[bigGear1.id], CAM_WIDTH, CAM_HEIGHT);
+  smallGear1 = createGearData(0, 1);
+  mediumGear1 = createGearData(1, 2);
+  bigGear1 = createGearData(2, 3);
+  mediumGear2 = createGearData(3, 2);
 
-  bigGear2 = new Gear(4);
-  bigGear2.type = 3;
-  bigGear2.init(VIEW_ZONES[bigGear2.id], CAM_WIDTH, CAM_HEIGHT);
-
-  bigGear3 = new Gear(7);
-  bigGear3.type = 3;
-  bigGear3.init(VIEW_ZONES[bigGear3.id], CAM_WIDTH, CAM_HEIGHT);
+  bigGear2 = createGearData(4, 3);
+  smallGear2 = createGearData(5, 1);
+  mediumGear3 = createGearData(6, 2);
+  bigGear3 = createGearData(7, 3);
+  
+  mediumGear4 = createGearData(8, 2);
+  smallGear3 = createGearData(9, 1);
+  mediumGear5 = createGearData(10, 2);
+  smallGear4 = createGearData(11, 1);
+  
+  
+  // assign surrounding gears (linked list)
+  smallGear1.next = mediumGear1;
+  
+  mediumGear1.previous = smallGear1;
+  mediumGear1.next = bigGear1;
+  
+  bigGear1.previous = mediumGear1;
+  bigGear1.next = mediumGear2;
+  
+  mediumGear2.previous = bigGear1;
+  mediumGear2.next = bigGear2;
+  
+  bigGear2.previous = mediumGear2;
+  bigGear2.next = smallGear2;
+  
+  smallGear2.previous = bigGear2;
+  smallGear2.next = mediumGear3;
+  
+  mediumGear3.previous = smallGear2;
+  mediumGear3.next = bigGear3;
+  
+  bigGear3.previous = mediumGear3;
+  bigGear3.next = mediumGear4;
+  
+  mediumGear4.previous = bigGear3;
+  mediumGear4.next = smallGear3;
+  
+  smallGear3.previous = mediumGear4;
+  smallGear3.next = mediumGear5;
+  
+  mediumGear5.previous = smallGear3;
+  mediumGear5.next = smallGear4;
+  
+  smallGear4.previous = mediumGear5;
+  
 
   // open cv
   cv = new OpenCV(this, CAM_WIDTH, CAM_HEIGHT);
@@ -149,6 +201,13 @@ void captureScreenshot() {
     }
     if (!IS_PROD) pixelIndex += CAM_WIDTH;
   }
+}
+
+Gear createGearData(int id, int type) {
+  Gear gear  = new Gear(id);
+  gear.type = type;
+  gear.init(VIEW_ZONES[gear.id], CAM_WIDTH, CAM_HEIGHT);
+  return gear;
 }
 
 void copyViewZone(PImage src, Gear gear) {

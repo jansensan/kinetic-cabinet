@@ -19,6 +19,9 @@ class Gear {
   float[] flowValues = {0, 0};
   
   boolean isTriggered = false;
+  
+  Gear previous = null;
+  Gear next = null;
 
 
   // constructor 
