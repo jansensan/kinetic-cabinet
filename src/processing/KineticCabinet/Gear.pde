@@ -51,14 +51,25 @@ class Gear {
     if (abs(getAverageFlow()) > TRIGGER_THRESHOLD) {
       isTriggered = true;
       triggerEndTime = millis() + TRIGGER_DURATION;
-      
-      println("gear " + id + " triggered (" + getAverageFlow() + ")");
-      // TODO: send to arduino (https://github.com/jansensan/kinetic-cabinet/issues/26)
     }
   }
 
   float getAverageFlow() {
     return (flowValues[0] + flowValues[1]) * 0.5;
+  }
+  
+  void rotate(int direction, float impulse) {
+    println("gear " + id + " triggered (" + getAverageFlow() + ")");
+    
+    // TODO: send to arduino (https://github.com/jansensan/kinetic-cabinet/issues/26)
+
+    // TODO: trigger surrounding gears
+    //if (previous != null) {
+    //  previous.rotate();
+    //}
+    //if (next != null) {
+    //  next.rotate();
+    //}
   }
 
   void updateFlow(float newFlow) {
