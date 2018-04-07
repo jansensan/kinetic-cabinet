@@ -3,6 +3,8 @@ import gab.opencv.*;
 import processing.core.*;
 import processing.opengl.PGraphics2D;
 
+import processing.serial.*;
+
 import processing.video.Capture;
 // import gohai.glvideo.*;
 
@@ -10,11 +12,15 @@ import processing.video.Capture;
 // constants
 boolean IS_PROD = false;
 boolean IS_VERBOSE = false;
+boolean IS_ARDUINO_CONNECTED = false;
 
-int CAM_WIDTH = 320;
-int CAM_HEIGHT = 240;
+int ARDUINO_PORT_INDEX = 0;
+int ARDUINO_PORT_NUMBER = 9600;
 
-int LABEL_SIZE = 12;
+int CAM_WIDTH = 640;
+int CAM_HEIGHT = 480;
+
+int LABEL_SIZE = 24;
 
 // as viewed from the front of the cabinet
 float[][] VIEW_ZONES = {
@@ -58,6 +64,9 @@ Gear bigGear3;
 float maxLeftFlow = 0;
 float maxRightFlow = 0;
 
+Serial arduinoPort;
+String arduinoPortName;
+
 
 // processing setup
 void settings() {
@@ -73,6 +82,113 @@ void settings() {
 }
 
 void setup() {
+  createAllGears();
+  
+  // open cv
+  cv = new OpenCV(this, CAM_WIDTH, CAM_HEIGHT);
+
+  // init video capture
+  video = new Capture(this, CAM_WIDTH, CAM_HEIGHT, 30);
+  // video = new GLCapture(this);
+  video.start();
+  
+  screenshot = new PImage(CAM_WIDTH, CAM_HEIGHT);
+
+  background(0);
+  frameRate(30);
+  
+  initArduinoSerial();
+}
+
+void draw() {
+  background(0);
+
+  // update Optical Flow
+  cv.loadImage(video);
+  cv.calculateOpticalFlow();
+ 
+  // calculate flow per gear view zone
+  updateBigGearFlow(bigGear1);
+  updateBigGearFlow(bigGear2);
+  updateBigGearFlow(bigGear3);
+  
+  // display result
+  background(0);
+
+  // debugging drawings
+  if (!IS_PROD) {
+    // draw optical flow
+    stroke(255);
+    cv.drawOpticalFlow();
+
+    // save screenshot to image
+    captureScreenshot(); 
+
+    // copy from currentFrame
+    copyViewZone(screenshot, bigGear1);
+    copyViewZone(screenshot, bigGear2);
+    copyViewZone(screenshot, bigGear3);
+
+    // draw camera views
+    drawViewZone(bigGear1);
+    drawViewZone(bigGear2);
+    drawViewZone(bigGear3);
+
+    // draw directions labels and blocks
+    if (bigGear1.isRotating) {
+      drawDirectionBlock(bigGear1);
+      drawDirectionLabel(bigGear1);
+    }
+    if (bigGear2.isRotating) {
+      drawDirectionBlock(bigGear2);
+      drawDirectionLabel(bigGear2);
+    }
+    if (bigGear3.isRotating) {
+      drawDirectionBlock(bigGear3);
+      drawDirectionLabel(bigGear3);
+    }
+  }
+  
+  bigGear1.update();
+  bigGear2.update();
+  bigGear3.update();
+}
+
+
+// methods definitions
+void initArduinoSerial() {
+  if (!IS_ARDUINO_CONNECTED) {
+    return;
+  }
+  
+  printArray(Serial.list());
+
+  arduinoPortName = Serial.list()[ARDUINO_PORT_INDEX];
+  println("port name: " + arduinoPortName + ", index: " + ARDUINO_PORT_INDEX);
+
+  arduinoPort = new Serial(this, arduinoPortName, ARDUINO_PORT_NUMBER);
+}
+
+void captureScreenshot() {
+  loadPixels();
+  int pixelIndex = -1;
+  for (int i = 0; i < CAM_HEIGHT; i++) {
+    for (int j = 0; j < CAM_WIDTH; j++) {
+      pixelIndex++;
+      screenshot.set(j, i, pixels[pixelIndex]);
+    }
+    if (!IS_PROD) pixelIndex += CAM_WIDTH;
+  }
+}
+
+Gear createGearData(int id, int type) {
+  Gear gear = new Gear(this, id);
+  gear.type = type;
+  gear.init(VIEW_ZONES[gear.id], CAM_WIDTH, CAM_HEIGHT);
+  return gear;
+}
+
+void createAllGears() {
   // declare gear data
   smallGear1 = createGearData(0, 1);
   mediumGear1 = createGearData(1, 2);
@@ -124,96 +240,15 @@ void setup() {
   mediumGear5.next = smallGear4;
   
   smallGear4.previous = mediumGear5;
-  
-
-  // open cv
-  cv = new OpenCV(this, CAM_WIDTH, CAM_HEIGHT);
-
-  // init video capture
-  video = new Capture(this, CAM_WIDTH, CAM_HEIGHT, 30);
-  // video = new GLCapture(this);
-  video.start();
-  
-  screenshot = new PImage(CAM_WIDTH, CAM_HEIGHT);
-
-  background(0);
-  frameRate(30);
-}
-
-void draw() {
-  background(0);
-
-  // update Optical Flow
-  cv.loadImage(video);
-  cv.calculateOpticalFlow();
- 
-  // calculate flow per gear view zone
-  updateBigGearFlow(bigGear1);
-  updateBigGearFlow(bigGear2);
-  updateBigGearFlow(bigGear3);
-  
-  // display result
-  background(0);
-  if (!IS_PROD) {
-    // draw optical flow
-    stroke(255, 160, 160);
-    cv.drawOpticalFlow();
-
-    // save screenshot to image
-    captureScreenshot(); 
-
-    // copy from currentFrame
-    copyViewZone(screenshot, bigGear1);
-    copyViewZone(screenshot, bigGear2);
-    copyViewZone(screenshot, bigGear3);
-  
-    // draw camera views
-    drawViewZone(bigGear1);
-    drawViewZone(bigGear2);
-    drawViewZone(bigGear3);
-    
-    // draw directions labels
-    if (bigGear1.isTriggered) {
-      drawDirectionLabel(bigGear1);
-    }
-    if (bigGear2.isTriggered) {
-      drawDirectionLabel(bigGear2);
-    }
-    if (bigGear3.isTriggered) {
-      drawDirectionLabel(bigGear3);
-    }
-  }
-  
-  bigGear1.update();
-  bigGear2.update();
-  bigGear3.update();
-}
-
-
-// methods definitions
-void captureScreenshot() {
-  loadPixels();
-  int pixelIndex = -1;
-  for (int i = 0; i < CAM_HEIGHT; i++) {
-    for (int j = 0; j < CAM_WIDTH; j++) {
-      pixelIndex++;
-      screenshot.set(j, i, pixels[pixelIndex]);
-    }
-    if (!IS_PROD) pixelIndex += CAM_WIDTH;
-  }
-}
-
-Gear createGearData(int id, int type) {
-  Gear gear  = new Gear(id);
-  gear.type = type;
-  gear.init(VIEW_ZONES[gear.id], CAM_WIDTH, CAM_HEIGHT);
-  return gear;
 }
 
 void copyViewZone(PImage src, Gear gear) {
   // error handling
   if (gear.viewZone == null) {
-    if (IS_VERBOSE) println("Warning at KineticCabinet#copyViewZone: viewZone null for gear with id " + gear.id); 
+    printWarning(
+      "copyViewZone",
+      "viewZone null for gear with id " + gear.id
+    );
     return;
   }
   
@@ -224,7 +259,28 @@ void copyViewZone(PImage src, Gear gear) {
   }
 }
 
+void drawDirectionBlock(Gear gear) {
+  // set color according to direction
+  color c = color(0, 0, 0, 0);
+  float flow = gear.getAverageFlow();
+  if (flow > 0) {
+    c = color(200, 0, 0, 200);
+  } else if (flow < 0) {
+    c = color(0, 0, 200, 200);
+  }
+
+  // draw rect to sketch
+  int labelLeftPadding = (IS_PROD) ? 0 : CAM_WIDTH;
+  fill(c);
+  noStroke();
+  rect(
+    labelLeftPadding + gear.viewZone.x, 0,
+    gear.viewZone.w, gear.viewZone.w
+  );
+}
+
 void drawDirectionLabel(Gear gear) {
+  // set label according to direction
   String label = "";
   float flow = gear.getAverageFlow();
   if (flow > 0) {
@@ -232,8 +288,10 @@ void drawDirectionLabel(Gear gear) {
   } else if (flow < 0) {
     label = "left";
   }
-  
+
+  // draw label to sketch
   int labelLeftPadding = (IS_PROD) ? 0 : CAM_WIDTH;
+  fill(255);
   textSize(LABEL_SIZE);
   text(label, labelLeftPadding + gear.viewZone.x, 24);
 }
@@ -241,7 +299,10 @@ void drawDirectionLabel(Gear gear) {
 void drawViewZone(Gear gear) {
   // error handling
   if (gear.viewZone == null) {
-    if (IS_VERBOSE) println("Warning at KineticCabinet#drawViewZone: viewZone null for gear with id " + gear.id); 
+    printWarning(
+      "drawViewZone",
+      "viewZone null for gear with id " + gear.id
+    );
     return;
   }
   
@@ -253,13 +314,27 @@ void drawViewZone(Gear gear) {
   );
 }
 
+void triggerMotor(Gear gear) {
+  printMethodName("triggerMotor");
+  println("gear id: " + gear.id);
+  println("gear flow: " + gear.getAverageFlow());
+
+  if (arduinoPort == null) {
+    if (IS_VERBOSE) println("Warning at KineticCabinet#triggerMotorRotation: port for Arduino is not defined.");
+    return;
+  }
+
+  // TODO: send value(s)
+  //arduinoPort.write();
+}
+
 void updateBigGearFlow(Gear gear) {
   PVector flowInRegion = cv.getAverageFlowInRegion(
     gear.viewZone.x, gear.viewZone.y, 
     gear.viewZone.w, gear.viewZone.h
   );
   gear.updateFlow(flowInRegion.x);
-  gear.analyzeIfTriggered();
+  gear.trigger();
 }
 
 
@@ -267,4 +342,43 @@ void updateBigGearFlow(Gear gear) {
 void captureEvent(Capture video) {
 // void captureEvent(GLCapture video) {
   video.read();
+}
+
+void keyPressed() {
+  if (IS_PROD) {
+    return;
+  }
+
+  //if (keyCode == UP || keyCode == DOWN) {
+  //  isKeyPressed = true;
+
+  //  if (keyCode == UP) {
+  //    motorDirection = 1;
+
+  //  } else if (keyCode == DOWN) {
+  //    motorDirection = -1;
+  //  }
+  //}
+}
+
+void keyReleased() {
+  //isKeyPressed = false;
+}
+
+
+// utils
+void printMethodName(String methodName) {
+  if (main.IS_VERBOSE) {
+    println("\n--- KineticCabinet." + methodName + "()");
+  }
+}
+
+void printWarning(String methodName, String message) {
+  if (IS_VERBOSE) {
+    println("\nWarning at KineticCabinet#" + methodName + "():" + message);
+  }
+}
+
+String toString() {
+  return "KineticCabinet []";
 }
