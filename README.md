@@ -1,18 +1,9 @@
-# Kinetic Cabinet
+# Zutorie
 
 ![image](documentation/diagram.png)
 
+By repurposing some of the mechanical components of a guitar, I am transforming a musical instrument into a reactive kinetic sculpture. The cabinet houses an array of guitar strings, which motors tighten or loosen to the point of sometimes breaking them.
 
-For this artwork, I will be repurposing some of the mechanical components of a guitar—strings, tuning keys, bridges—into a non-musically oriented object. Taking cues from the visual language of the grandfather clock and the grand piano, the final piece will be a windowed cabinet which will house an array of guitar strings that motors will tighten or loosen, to the point of sometimes breaking them.
+By deconstructing a guitar—an instrument with which I have expressed myself for years—and reorganizing its components into a visual device, I am pushing further my practice of post-rock—in which rock instruments are used to create non-rock music—to the point where instruments are used to create non-music, e.g. visual arts.
 
-I have been [playing guitar for over 20 years](https://matjb.bandcamp.com/), and I have always preferred to avoid lyrics, so that the audience of my pieces can experience emotions freely, without the bias of written and spoken language. By deconstructing the instrument that has allowed me to express myself, and reorganizing its components into a visual device, I will push my practice of post-rock—in which rock instruments are used to create non-rock music—to the point where rock instruments are used to create non-music, e.g. visual arts.
-
-Read more about the process on [my academic blog](https://academia.jansensan.net/category/imca-400/).
-
-
-## Development
-
-Read the folowing wiki pages for more details
-
-- [Arduino Development](https://github.com/jansensan/kinetic-cabinet/wiki/Arduino-Development)
-- [Processing Development](https://github.com/jansensan/kinetic-cabinet/wiki/Processing-Development)
+Read more about my process on [my academic blog](https://academia.jansensan.net/category/imca-400/).
