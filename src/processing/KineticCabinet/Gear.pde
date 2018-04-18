@@ -74,6 +74,21 @@ class Gear {
   float getAverageFlow() {
     return (flowValues[0] + flowValues[1]) * 0.5;
   }
+  
+  float getImpulseRatio() {
+    printMethodName("rotate");
+    
+    float flow = getAverageFlow();
+    float ratio = 0;
+
+    if (flow > 0) {
+      ratio = flow / maxRightFlow;
+    } else if (flow < 0) {
+      ratio = (flow / maxLeftFlow) * -1;
+    }
+    
+    return ratio;
+  }
 
   boolean isBig() {
     return (type == 3);

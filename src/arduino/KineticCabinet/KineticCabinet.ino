@@ -4,7 +4,9 @@
 
 // constants
 const int PORT_NUMBER = 9600;
-const float MAX_MOTOR_SPEED = 500.0;
+const float MAX_MOTOR_SPEED = 440.0;
+const float MIN_MOTOR_SPEED = 220.0;
+const float MOTOR_SPEED_DIFF = 220.0;
 
 
 // vars
@@ -29,11 +31,8 @@ void setup() {
   // set max speed for motors
   initMotorsSpeed();
 
-  // set speed
-  motor01.setSpeed(220.0);
-
-  // debug led
-  pinMode(13, OUTPUT);
+  motor01.setSpeed(MIN_MOTOR_SPEED);
+  gear01.trigger();
 
   // init serial communications
   Serial.begin(PORT_NUMBER);
@@ -41,14 +40,25 @@ void setup() {
 
 void loop() {
   // read serial data
-  char serialData;
+  String serialData;
   if (Serial.available()) {
-    serialData = Serial.read();
+    serialData = Serial.readString();
   }
 
-  //
-  if (serialData == 10) {
-    gear01.trigger();
+  // split data
+  int splitterIndex = serialData.indexOf(',');
+  String gearIdStr = serialData.substring(0, splitterIndex);
+  String rotationRatioStr = serialData.substring(1, splitterIndex);
+
+  // cast data
+  int gearId = gearIdStr.toInt();
+  float rotationRatio = rotationRatioStr.toFloat();
+
+  // TODO: improve with a loop?
+  switch (gearId) {
+    case 2:
+      gear01.trigger();
+      break;
   }
   
   // update gears
@@ -57,9 +67,6 @@ void loop() {
   // run motors accordingly
   if (gear01.isTriggered) {
     motor01.runSpeed();
-    digitalWrite(13, HIGH); 
-  } else {
-    digitalWrite(13, LOW); 
   }
 }
 

@@ -314,6 +314,14 @@ void drawViewZone(Gear gear) {
   );
 }
 
+String getPayloadString(Gear gear) {
+  // creates a string "[id],[impulseRatio]"
+  String payload = gear.id + "," + gear.getImpulseRatio();
+  println("payload:");
+  println(payload);
+  return payload;
+}
+
 void triggerMotor(Gear gear) {
   printMethodName("triggerMotor");
 
@@ -324,14 +332,11 @@ void triggerMotor(Gear gear) {
     );
     return;
   }
-
-  // prepare payload
-  String payload = "id:" + gear.id + ",impulse:" + gear.impulse + ";";
-  println("payload:");
-  println(payload);
   
   // TODO: send payload
-  arduinoPort.write(10);
+  //arduinoPort.write(10);
+  String payload = getPayloadString(gear);
+  arduinoPort.write(payload);
 }
 
 void updateBigGearFlow(Gear gear) {
