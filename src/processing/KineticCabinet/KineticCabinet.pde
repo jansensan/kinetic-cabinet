@@ -355,27 +355,6 @@ void captureEvent(Capture video) {
   video.read();
 }
 
-void keyPressed() {
-  if (IS_PROD) {
-    return;
-  }
-
-  //if (keyCode == UP || keyCode == DOWN) {
-  //  isKeyPressed = true;
-
-  //  if (keyCode == UP) {
-  //    motorDirection = 1;
-
-  //  } else if (keyCode == DOWN) {
-  //    motorDirection = -1;
-  //  }
-  //}
-}
-
-void keyReleased() {
-  //isKeyPressed = false;
-}
-
 
 // utils
 void printMethodName(String methodName) {
