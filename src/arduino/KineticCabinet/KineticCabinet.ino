@@ -31,9 +31,6 @@ void setup() {
   // set max speed for motors
   initMotorsSpeed();
 
-  // demo debug
-  gear01.trigger();
-
   // init serial communications
   Serial.begin(PORT_NUMBER);
 }
@@ -57,6 +54,12 @@ void loop() {
   // TODO: improve with a loop?
   switch (gearId) {
     case 2:
+      // set speed and direction
+      if (rotationRatio > 0) {
+        motor01.setSpeed(MIN_MOTOR_SPEED);
+      } else {
+        motor01.setSpeed(MIN_MOTOR_SPEED * -1);
+      }
       gear01.trigger();
       break;
   }
@@ -68,22 +71,38 @@ void loop() {
   if (gear01.isTriggered) {
     motor01.runSpeed();
   }
+
+  delay(10);
 }
 
 
 // methods definitions
 void initMotorsSpeed() {
   // set max speed for motors
-  motor01.setMaxSpeed(MIN_MOTOR_SPEED);
-  motor02.setMaxSpeed(MIN_MOTOR_SPEED);
-  motor03.setMaxSpeed(MIN_MOTOR_SPEED);
-  motor04.setMaxSpeed(MIN_MOTOR_SPEED);
-  motor05.setMaxSpeed(MIN_MOTOR_SPEED);
-  motor06.setMaxSpeed(MIN_MOTOR_SPEED);
-  motor07.setMaxSpeed(MIN_MOTOR_SPEED);
-  motor08.setMaxSpeed(MIN_MOTOR_SPEED);
-  motor09.setMaxSpeed(MIN_MOTOR_SPEED);
-  motor10.setMaxSpeed(MIN_MOTOR_SPEED);
-  motor11.setMaxSpeed(MIN_MOTOR_SPEED);
-  motor12.setMaxSpeed(MIN_MOTOR_SPEED);
+  motor01.setMaxSpeed(MAX_MOTOR_SPEED);
+  motor02.setMaxSpeed(MAX_MOTOR_SPEED);
+  motor03.setMaxSpeed(MAX_MOTOR_SPEED);
+  motor04.setMaxSpeed(MAX_MOTOR_SPEED);
+  motor05.setMaxSpeed(MAX_MOTOR_SPEED);
+  motor06.setMaxSpeed(MAX_MOTOR_SPEED);
+  motor07.setMaxSpeed(MAX_MOTOR_SPEED);
+  motor08.setMaxSpeed(MAX_MOTOR_SPEED);
+  motor09.setMaxSpeed(MAX_MOTOR_SPEED);
+  motor10.setMaxSpeed(MAX_MOTOR_SPEED);
+  motor11.setMaxSpeed(MAX_MOTOR_SPEED);
+  motor12.setMaxSpeed(MAX_MOTOR_SPEED);
+
+  // set speed for motors
+  motor01.setSpeed(MIN_MOTOR_SPEED);
+  motor02.setSpeed(MIN_MOTOR_SPEED);
+  motor03.setSpeed(MIN_MOTOR_SPEED);
+  motor04.setSpeed(MIN_MOTOR_SPEED);
+  motor05.setSpeed(MIN_MOTOR_SPEED);
+  motor06.setSpeed(MIN_MOTOR_SPEED);
+  motor07.setSpeed(MIN_MOTOR_SPEED);
+  motor08.setSpeed(MIN_MOTOR_SPEED);
+  motor09.setSpeed(MIN_MOTOR_SPEED);
+  motor10.setSpeed(MIN_MOTOR_SPEED);
+  motor11.setSpeed(MIN_MOTOR_SPEED);
+  motor12.setSpeed(MIN_MOTOR_SPEED);
 }

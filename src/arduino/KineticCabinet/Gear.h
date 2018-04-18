@@ -2,7 +2,7 @@ class Gear{
 
 private:
   // constants
-  int ROTATION_DURATION = 500;
+  int ROTATION_DURATION = 250;
   
   // vars
   int rotationEndTime = -1;
