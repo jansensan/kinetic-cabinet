@@ -37,14 +37,18 @@ void draw() {
     }
   }
 
+  // test output
+  //image(screenshot, 0, 0, width, height);
+
   if (screenshot.width <= 0 || screenshot.height <= 0) {
     println("Screenshot dimensions are empty. (" + millis() + ")");
     return;
   }
   
-  //opencv.loadImage(video);
-  //opencv.calculateOpticalFlow();
+  opencv.loadImage(screenshot);
+  opencv.calculateOpticalFlow();
 
-  //stroke(255, 255, 255);
-  //opencv.drawOpticalFlow();
+  background(0);
+  stroke(255, 255, 255);
+  opencv.drawOpticalFlow();
 }
