@@ -65,13 +65,7 @@ void loop() {
   // TODO: improve with a loop?
   switch (gearId) {
     case 2:
-      // set speed and direction
-      if (rotationRatio > 0) {
-        motor01.setSpeed(MIN_MOTOR_SPEED);
-      } else {
-        motor01.setSpeed(MIN_MOTOR_SPEED * -1);
-      }
-      gear01.trigger();
+      triggerGear01(rotationRatio);
       break;
   }
   
