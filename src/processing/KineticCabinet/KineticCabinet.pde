@@ -90,8 +90,6 @@ void setup() {
   //video = new Capture(this, CAM_WIDTH, CAM_HEIGHT, 30);
   video = new GLCapture(this);
   video.start();
-  
-  screenshot = new PImage(CAM_WIDTH, CAM_HEIGHT);
 
   background(0);
   frameRate(30);
