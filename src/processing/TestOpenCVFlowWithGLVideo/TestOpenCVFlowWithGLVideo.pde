@@ -8,7 +8,6 @@ GLCapture video;
 
 void setup() {
   size(640, 480, P2D);
-  frameRate(30);
   background(0);
 
   opencv = new OpenCV(this, 640, 480);
@@ -20,17 +19,32 @@ void setup() {
 void draw() {
   background(0);
 
-  if (video.width <= 0 || video.height <= 0) {
+  if (video.available()) {
+    video.read();
+  }
+  
+  // display on screen
+  image(video, 0, 0, width, height);
+  
+  // take snapshot
+  PImage screenshot = new PImage(width, height);
+  loadPixels();
+  int pixelIndex = -1;
+  for (int i = 0; i < height; i++) {
+    for (int j = 0; j < width; j++) {
+      pixelIndex++;
+      screenshot.set(j, i, pixels[pixelIndex]);
+    }
+  }
+
+  if (screenshot.width <= 0 || screenshot.height <= 0) {
+    println("Screenshot dimensions are empty. (" + millis() + ")");
     return;
   }
   
-  opencv.loadImage(video);
-  opencv.calculateOpticalFlow();
+  //opencv.loadImage(video);
+  //opencv.calculateOpticalFlow();
 
-  stroke(255, 255, 255);
-  opencv.drawOpticalFlow();
-}
-
-void captureEvent(GLCapture video) {
-  video.read();
+  //stroke(255, 255, 255);
+  //opencv.drawOpticalFlow();
 }
