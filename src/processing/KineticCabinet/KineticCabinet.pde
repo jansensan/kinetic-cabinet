@@ -12,7 +12,7 @@ import gohai.glvideo.*;
 // constants
 boolean IS_PROD = false;
 boolean IS_VERBOSE = false;
-boolean IS_ARDUINO_CONNECTED = true;
+boolean IS_ARDUINO_CONNECTED = false;
 boolean IS_PI = true;
 
 int ARDUINO_PORT_INDEX = 0;
@@ -102,14 +102,35 @@ void setup() {
 }
 
 void draw() {
-  if (video == null || video.width <= 0 || video.height <= 0) {
-    return;
-  }
-  
+  // clear previous frame
   background(0);
 
+  // read video
+  if (video.available()) {
+    video.read();
+  }
+
+  // display on screen
+  image(video, 0, 0, width, height);
+
+  // take snapshot
+  PImage screenshot = new PImage(width, height);
+  loadPixels();
+  int pixelIndex = -1;
+  for (int i = 0; i < height; i++) {
+    for (int j = 0; j < width; j++) {
+      pixelIndex++;
+      screenshot.set(j, i, pixels[pixelIndex]);
+    }
+  }
+
+  if (screenshot.width <= 0 || screenshot.height <= 0) {
+    println("Screenshot dimensions are empty. (" + millis() + ")");
+    return;
+  }
+
   // update Optical Flow
-  cv.loadImage(video);
+  cv.loadImage(screenshot);
   cv.calculateOpticalFlow();
  
   // calculate flow per gear view zone
@@ -353,13 +374,6 @@ void updateBigGearFlow(Gear gear) {
   );
   gear.updateFlow(flowInRegion.x);
   gear.trigger();
-}
-
-
-// events
-//void captureEvent(Capture video) {
-void captureEvent(GLCapture video) {
-  video.read();
 }
 
 
