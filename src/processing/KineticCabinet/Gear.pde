@@ -2,7 +2,7 @@ class Gear {
   // constants
 
   // threshold over which detected motion can cause an action trigger
-  float TRIGGER_THRESHOLD = 2.5;
+  float TRIGGER_THRESHOLD = 1;
   
   // duration while which another trigger cannot be sent
   int TRIGGER_COOLDOWN = 4000;
