@@ -333,8 +333,6 @@ void triggerMotor(Gear gear) {
     return;
   }
   
-  // TODO: send payload
-  //arduinoPort.write(10);
   String payload = getPayloadString(gear);
   arduinoPort.write(payload);
 }
