@@ -12,9 +12,9 @@ import processing.video.Capture;
 // constants
 boolean IS_PROD = false;
 boolean IS_VERBOSE = false;
-boolean IS_ARDUINO_CONNECTED = false;
+boolean IS_ARDUINO_CONNECTED = true;
 
-int ARDUINO_PORT_INDEX = 0;
+int ARDUINO_PORT_INDEX = 5;
 int ARDUINO_PORT_NUMBER = 9600;
 
 int CAM_WIDTH = 640;
@@ -316,16 +316,22 @@ void drawViewZone(Gear gear) {
 
 void triggerMotor(Gear gear) {
   printMethodName("triggerMotor");
-  println("gear id: " + gear.id);
-  println("gear flow: " + gear.getAverageFlow());
 
   if (arduinoPort == null) {
-    if (IS_VERBOSE) println("Warning at KineticCabinet#triggerMotorRotation: port for Arduino is not defined.");
+    printWarning(
+      "triggerMotorRotation",
+      "port for Arduino is not defined."
+    );
     return;
   }
 
-  // TODO: send value(s)
-  //arduinoPort.write();
+  // prepare payload
+  String payload = "id:" + gear.id + ",impulse:" + gear.impulse + ";";
+  println("payload:");
+  println(payload);
+  
+  // TODO: send payload
+  arduinoPort.write(10);
 }
 
 void updateBigGearFlow(Gear gear) {
@@ -368,7 +374,7 @@ void keyReleased() {
 
 // utils
 void printMethodName(String methodName) {
-  if (main.IS_VERBOSE) {
+  if (IS_VERBOSE) {
     println("\n--- KineticCabinet." + methodName + "()");
   }
 }
