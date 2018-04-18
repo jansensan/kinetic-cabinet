@@ -5,8 +5,8 @@ import processing.opengl.PGraphics2D;
 
 import processing.serial.*;
 
-import processing.video.Capture;
-// import gohai.glvideo.*;
+// import processing.video.Capture;
+import gohai.glvideo.*;
 
 
 // constants
@@ -14,11 +14,11 @@ boolean IS_PROD = false;
 boolean IS_VERBOSE = false;
 boolean IS_ARDUINO_CONNECTED = true;
 
-int ARDUINO_PORT_INDEX = 5;
+int ARDUINO_PORT_INDEX = 0;
 int ARDUINO_PORT_NUMBER = 9600;
 
-int CAM_WIDTH = 640;
-int CAM_HEIGHT = 480;
+int CAM_WIDTH = 320;
+int CAM_HEIGHT = 240;
 
 int LABEL_SIZE = 24;
 
@@ -43,8 +43,8 @@ float[][] VIEW_ZONES = {
 PImage screenshot;
 
 OpenCV cv;
-Capture video;
-// GLCapture video;
+//Capture video;
+GLCapture video;
 
 Gear smallGear1;
 Gear smallGear2;
@@ -88,8 +88,8 @@ void setup() {
   cv = new OpenCV(this, CAM_WIDTH, CAM_HEIGHT);
 
   // init video capture
-  video = new Capture(this, CAM_WIDTH, CAM_HEIGHT, 30);
-  // video = new GLCapture(this);
+  //video = new Capture(this, CAM_WIDTH, CAM_HEIGHT, 30);
+  video = new GLCapture(this);
   video.start();
   
   screenshot = new PImage(CAM_WIDTH, CAM_HEIGHT);
@@ -101,6 +101,10 @@ void setup() {
 }
 
 void draw() {
+  if (video == null || video.width <= 0 || video.height <= 0) {
+    return;
+  }
+  
   background(0);
 
   // update Optical Flow
@@ -348,8 +352,8 @@ void updateBigGearFlow(Gear gear) {
 
 
 // events
-void captureEvent(Capture video) {
-// void captureEvent(GLCapture video) {
+//void captureEvent(Capture video) {
+void captureEvent(GLCapture video) {
   video.read();
 }
 
