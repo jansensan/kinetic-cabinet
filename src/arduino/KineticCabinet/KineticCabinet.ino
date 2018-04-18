@@ -74,16 +74,16 @@ void loop() {
 // methods definitions
 void initMotorsSpeed() {
   // set max speed for motors
-  motor01.setMaxSpeed(MAX_MOTOR_SPEED);
-  motor02.setMaxSpeed(MAX_MOTOR_SPEED);
-  motor03.setMaxSpeed(MAX_MOTOR_SPEED);
-  motor04.setMaxSpeed(MAX_MOTOR_SPEED);
-  motor05.setMaxSpeed(MAX_MOTOR_SPEED);
-  motor06.setMaxSpeed(MAX_MOTOR_SPEED);
-  motor07.setMaxSpeed(MAX_MOTOR_SPEED);
-  motor08.setMaxSpeed(MAX_MOTOR_SPEED);
-  motor09.setMaxSpeed(MAX_MOTOR_SPEED);
-  motor10.setMaxSpeed(MAX_MOTOR_SPEED);
-  motor11.setMaxSpeed(MAX_MOTOR_SPEED);
-  motor12.setMaxSpeed(MAX_MOTOR_SPEED);
+  motor01.setMaxSpeed(MIN_MOTOR_SPEED);
+  motor02.setMaxSpeed(MIN_MOTOR_SPEED);
+  motor03.setMaxSpeed(MIN_MOTOR_SPEED);
+  motor04.setMaxSpeed(MIN_MOTOR_SPEED);
+  motor05.setMaxSpeed(MIN_MOTOR_SPEED);
+  motor06.setMaxSpeed(MIN_MOTOR_SPEED);
+  motor07.setMaxSpeed(MIN_MOTOR_SPEED);
+  motor08.setMaxSpeed(MIN_MOTOR_SPEED);
+  motor09.setMaxSpeed(MIN_MOTOR_SPEED);
+  motor10.setMaxSpeed(MIN_MOTOR_SPEED);
+  motor11.setMaxSpeed(MIN_MOTOR_SPEED);
+  motor12.setMaxSpeed(MIN_MOTOR_SPEED);
 }
