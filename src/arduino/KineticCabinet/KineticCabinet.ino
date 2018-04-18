@@ -31,7 +31,7 @@ void setup() {
   // set max speed for motors
   initMotorsSpeed();
 
-  motor01.setSpeed(MIN_MOTOR_SPEED);
+  // demo debug
   gear01.trigger();
 
   // init serial communications
