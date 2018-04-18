@@ -11,6 +11,17 @@ const float MOTOR_SPEED_DIFF = 220.0;
 
 // vars
 Gear gear01(1);
+Gear gear02(2);
+Gear gear03(3);
+Gear gear04(4);
+Gear gear05(5);
+Gear gear06(6);
+Gear gear07(7);
+Gear gear08(8);
+Gear gear09(9);
+Gear gear10(10);
+Gear gear11(11);
+Gear gear12(12);
 
 AccelStepper motor01; // Defaults to pins 2, 3, 4, 5           // small
 AccelStepper motor02(AccelStepper::FULL4WIRE, 6, 7, 8, 9);     // medium
@@ -105,4 +116,138 @@ void initMotorsSpeed() {
   motor10.setSpeed(MIN_MOTOR_SPEED);
   motor11.setSpeed(MIN_MOTOR_SPEED);
   motor12.setSpeed(MIN_MOTOR_SPEED);
+}
+
+// FIXME: for some ridiculous and unknown reason,
+// cannot use arrays to get motors and gears
+void triggerGear01(float rotationRatio) {
+  // set speed and direction
+  if (rotationRatio > 0) {
+    motor01.setSpeed(MIN_MOTOR_SPEED);
+  } else {
+    motor01.setSpeed(MIN_MOTOR_SPEED * -1);
+  }
+
+  gear01.trigger();
+}
+
+void triggerGear02(float rotationRatio) {
+  // set speed and direction
+  if (rotationRatio > 0) {
+    motor02.setSpeed(MIN_MOTOR_SPEED);
+  } else {
+    motor02.setSpeed(MIN_MOTOR_SPEED * -1);
+  }
+
+  gear02.trigger();
+}
+
+void triggerGear03(float rotationRatio) {
+  // set speed and direction
+  if (rotationRatio > 0) {
+    motor03.setSpeed(MIN_MOTOR_SPEED);
+  } else {
+    motor03.setSpeed(MIN_MOTOR_SPEED * -1);
+  }
+
+  gear03.trigger();
+}
+
+void triggerGear04(float rotationRatio) {
+  // set speed and direction
+  if (rotationRatio > 0) {
+    motor04.setSpeed(MIN_MOTOR_SPEED);
+  } else {
+    motor04.setSpeed(MIN_MOTOR_SPEED * -1);
+  }
+
+  gear04.trigger();
+}
+
+void triggerGear05(float rotationRatio) {
+  // set speed and direction
+  if (rotationRatio > 0) {
+    motor05.setSpeed(MIN_MOTOR_SPEED);
+  } else {
+    motor05.setSpeed(MIN_MOTOR_SPEED * -1);
+  }
+
+  gear05.trigger();
+}
+
+void triggerGear06(float rotationRatio) {
+  // set speed and direction
+  if (rotationRatio > 0) {
+    motor06.setSpeed(MIN_MOTOR_SPEED);
+  } else {
+    motor06.setSpeed(MIN_MOTOR_SPEED * -1);
+  }
+
+  gear06.trigger();
+}
+
+void triggerGear07(float rotationRatio) {
+  // set speed and direction
+  if (rotationRatio > 0) {
+    motor07.setSpeed(MIN_MOTOR_SPEED);
+  } else {
+    motor07.setSpeed(MIN_MOTOR_SPEED * -1);
+  }
+
+  gear07.trigger();
+}
+
+void triggerGear08(float rotationRatio) {
+  // set speed and direction
+  if (rotationRatio > 0) {
+    motor08.setSpeed(MIN_MOTOR_SPEED);
+  } else {
+    motor08.setSpeed(MIN_MOTOR_SPEED * -1);
+  }
+
+  gear08.trigger();
+}
+
+void triggerGear09(float rotationRatio) {
+  // set speed and direction
+  if (rotationRatio > 0) {
+    motor09.setSpeed(MIN_MOTOR_SPEED);
+  } else {
+    motor09.setSpeed(MIN_MOTOR_SPEED * -1);
+  }
+
+  gear09.trigger();
+}
+
+void triggerGear10(float rotationRatio) {
+  // set speed and direction
+  if (rotationRatio > 0) {
+    motor10.setSpeed(MIN_MOTOR_SPEED);
+  } else {
+    motor10.setSpeed(MIN_MOTOR_SPEED * -1);
+  }
+
+  gear10.trigger();
+}
+
+void triggerGear11(float rotationRatio) {
+  // set speed and direction
+  if (rotationRatio > 0) {
+    motor11.setSpeed(MIN_MOTOR_SPEED);
+  } else {
+    motor11.setSpeed(MIN_MOTOR_SPEED * -1);
+  }
+
+  gear11.trigger();
+}
+
+void triggerGear12(float rotationRatio) {
+  // set speed and direction
+  if (rotationRatio > 0) {
+    motor12.setSpeed(MIN_MOTOR_SPEED);
+  } else {
+    motor12.setSpeed(MIN_MOTOR_SPEED * -1);
+  }
+
+  gear12.trigger();
 }
