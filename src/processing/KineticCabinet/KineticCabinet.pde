@@ -41,8 +41,6 @@ float[][] VIEW_ZONES = {
 
 
 // vars
-PImage screenshot;
-
 OpenCV cv;
 //Capture video;
 GLCapture video;
@@ -113,7 +111,7 @@ void draw() {
   // display on screen
   image(video, 0, 0, width, height);
 
-  // take snapshot
+  // capture snapshot
   PImage screenshot = new PImage(width, height);
   loadPixels();
   int pixelIndex = -1;
@@ -137,7 +135,7 @@ void draw() {
   updateBigGearFlow(bigGear1);
   updateBigGearFlow(bigGear2);
   updateBigGearFlow(bigGear3);
-  
+
   // display result
   background(0);
 
@@ -146,9 +144,6 @@ void draw() {
     // draw optical flow
     stroke(255);
     cv.drawOpticalFlow();
-
-    // save screenshot to image
-    captureScreenshot(); 
 
     // copy from currentFrame
     copyViewZone(screenshot, bigGear1);
@@ -193,22 +188,6 @@ void initArduinoSerial() {
   println("port name: " + arduinoPortName + ", index: " + ARDUINO_PORT_INDEX);
 
   arduinoPort = new Serial(this, arduinoPortName, ARDUINO_PORT_NUMBER);
-}
-
-void captureScreenshot() {
-  if (IS_PI) {
-    image(video, 0, 0, CAM_WIDTH, CAM_HEIGHT);
-  }
-
-  loadPixels();
-  int pixelIndex = -1;
-  for (int i = 0; i < CAM_HEIGHT; i++) {
-    for (int j = 0; j < CAM_WIDTH; j++) {
-      pixelIndex++;
-      screenshot.set(j, i, pixels[pixelIndex]);
-    }
-    if (!IS_PROD) pixelIndex += CAM_WIDTH;
-  }
 }
 
 Gear createGearData(int id, int type) {
