@@ -13,6 +13,7 @@ import gohai.glvideo.*;
 boolean IS_PROD = false;
 boolean IS_VERBOSE = false;
 boolean IS_ARDUINO_CONNECTED = true;
+boolean IS_PI = true;
 
 int ARDUINO_PORT_INDEX = 0;
 int ARDUINO_PORT_NUMBER = 9600;
@@ -174,6 +175,10 @@ void initArduinoSerial() {
 }
 
 void captureScreenshot() {
+  if (IS_PI) {
+    image(video, 0, 0, CAM_WIDTH, CAM_HEIGHT);
+  }
+
   loadPixels();
   int pixelIndex = -1;
   for (int i = 0; i < CAM_HEIGHT; i++) {
