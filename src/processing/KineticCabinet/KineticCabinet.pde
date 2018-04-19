@@ -191,7 +191,7 @@ void initArduinoSerial() {
 Gear createGearData(int id, int type) {
   Gear gear = new Gear(this, id);
   gear.type = type;
-  gear.init(VIEW_ZONES[gear.id], CAM_WIDTH, CAM_HEIGHT);
+  gear.init(VIEW_ZONES[gear.id - 1], CAM_WIDTH, CAM_HEIGHT);
   return gear;
 }
 
