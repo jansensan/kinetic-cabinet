@@ -62,20 +62,84 @@ void loop() {
   int gearId = gearIdStr.toInt();
   float rotationRatio = rotationRatioStr.toFloat();
 
-  // TODO: improve with a loop?
+  // FIXME: motor instances are not happy inside arrays. improve with loop somehow
   switch (gearId) {
-    case 2:
+    case 1:
       triggerGear01(rotationRatio);
+      break;
+
+    case 2:
+      triggerGear02(rotationRatio);
+      break;
+
+    case 3:
+      triggerGear03(rotationRatio);
+      break;
+
+    case 4:
+      triggerGear04(rotationRatio);
+      break;
+
+    case 5:
+      triggerGear05(rotationRatio);
+      break;
+
+    case 6:
+      triggerGear06(rotationRatio);
+      break;
+
+    case 7:
+      triggerGear07(rotationRatio);
+      break;
+
+    case 8:
+      triggerGear08(rotationRatio);
+      break;
+
+    case 9:
+      triggerGear09(rotationRatio);
+      break;
+
+    case 10:
+      triggerGear10(rotationRatio);
+      break;
+
+    case 11:
+      triggerGear11(rotationRatio);
+      break;
+
+    case 12:
+      triggerGear12(rotationRatio);
       break;
   }
   
   // update gears
   gear01.update();
+  gear02.update();
+  gear03.update();
+  gear04.update();
+  gear05.update();
+  gear06.update();
+  gear07.update();
+  gear08.update();
+  gear09.update();
+  gear10.update();
+  gear11.update();
+  gear12.update();
 
   // run motors accordingly
-  if (gear01.isTriggered) {
-    motor01.runSpeed();
-  }
+  runMotor01();
+  runMotor02();
+  runMotor03();
+  runMotor04();
+  runMotor05();
+  runMotor06();
+  runMotor07();
+  runMotor08();
+  runMotor09();
+  runMotor10();
+  runMotor11();
+  runMotor12();
 
   delay(10);
 }
@@ -244,4 +308,75 @@ void triggerGear12(float rotationRatio) {
   }
 
   gear12.trigger();
+}void runMotor01() {
+  if (gear01.isTriggered) {
+    motor01.runSpeed();
+  }
 }
+
+void runMotor02() {
+  if (gear02.isTriggered) {
+    motor02.runSpeed();
+  }
+}
+
+void runMotor03() {
+  if (gear03.isTriggered) {
+    motor03.runSpeed();
+  }
+}
+
+void runMotor04() {
+  if (gear04.isTriggered) {
+    motor04.runSpeed();
+  }
+}
+
+void runMotor05() {
+  if (gear05.isTriggered) {
+    motor05.runSpeed();
+  }
+}
+
+void runMotor06() {
+  if (gear06.isTriggered) {
+    motor06.runSpeed();
+  }
+}
+
+void runMotor07() {
+  if (gear07.isTriggered) {
+    motor07.runSpeed();
+  }
+}
+
+void runMotor08() {
+  if (gear08.isTriggered) {
+    motor08.runSpeed();
+  }
+}
+
+void runMotor09() {
+  if (gear09.isTriggered) {
+    motor09.runSpeed();
+  }
+}
+
+void runMotor10() {
+  if (gear10.isTriggered) {
+    motor10.runSpeed();
+  }
+}
+
+void runMotor11() {
+  if (gear11.isTriggered) {
+    motor11.runSpeed();
+  }
+}
+
+void runMotor12() {
+  if (gear12.isTriggered) {
+    motor12.runSpeed();
+  }
+}
+
