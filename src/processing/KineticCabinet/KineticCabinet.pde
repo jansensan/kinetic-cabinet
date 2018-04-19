@@ -197,20 +197,20 @@ Gear createGearData(int id, int type) {
 
 void createAllGears() {
   // declare gear data
-  smallGear1 = createGearData(0, 1);
-  mediumGear1 = createGearData(1, 2);
-  bigGear1 = createGearData(2, 3);
-  mediumGear2 = createGearData(3, 2);
+  smallGear1 = createGearData(1, 1);
+  mediumGear1 = createGearData(2, 2);
+  bigGear1 = createGearData(3, 3);
+  mediumGear2 = createGearData(4, 2);
 
-  bigGear2 = createGearData(4, 3);
-  smallGear2 = createGearData(5, 1);
-  mediumGear3 = createGearData(6, 2);
-  bigGear3 = createGearData(7, 3);
+  bigGear2 = createGearData(5, 3);
+  smallGear2 = createGearData(6, 1);
+  mediumGear3 = createGearData(7, 2);
+  bigGear3 = createGearData(8, 3);
   
-  mediumGear4 = createGearData(8, 2);
-  smallGear3 = createGearData(9, 1);
-  mediumGear5 = createGearData(10, 2);
-  smallGear4 = createGearData(11, 1);
+  mediumGear4 = createGearData(9, 2);
+  smallGear3 = createGearData(10, 1);
+  mediumGear5 = createGearData(11, 2);
+  smallGear4 = createGearData(12, 1);
   
   
   // assign surrounding gears (linked list)
