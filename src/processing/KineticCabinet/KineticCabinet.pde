@@ -12,7 +12,7 @@ import gohai.glvideo.*;
 // constants
 boolean IS_PROD = false;
 boolean IS_VERBOSE = false;
-boolean IS_ARDUINO_CONNECTED = false;
+boolean IS_ARDUINO_CONNECTED = true;
 boolean IS_PI = true;
 
 int ARDUINO_PORT_INDEX = 0;
