@@ -2,7 +2,7 @@ class Gear {
   // constants
 
   // threshold over which detected motion can cause an action trigger
-  float TRIGGER_THRESHOLD = 1;
+  float TRIGGER_THRESHOLD = 0.25;
   
   // duration while which another trigger cannot be sent
   int TRIGGER_COOLDOWN = 4000;
@@ -156,6 +156,9 @@ class Gear {
     }
 
     // if flow above threshold, trigger
+    if (main.IS_VERBOSE) {
+      println("flow: " + flow);
+    }
     if (abs(flow) > TRIGGER_THRESHOLD) {
       printMethodName("trigger");
       nextAvailableTime = millis() + TRIGGER_COOLDOWN;
