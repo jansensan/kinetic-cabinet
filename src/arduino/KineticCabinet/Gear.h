@@ -10,6 +10,7 @@ private:
 public:
   // vars
   int id = -1;
+  float rotationRatio = 0;
   bool isTriggered = false;
 
 
@@ -24,7 +25,7 @@ public:
     if (isTriggered) {
       return;
     }
-    
+
     isTriggered = true;
     rotationEndTime = millis() + ROTATION_DURATION;
   }

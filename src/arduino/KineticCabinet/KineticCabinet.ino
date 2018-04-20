@@ -1,12 +1,10 @@
-#include <AccelStepper.h>
+#include <Stepper.h>
 #include "Gear.h"
 
 
 // constants
 const int PORT_NUMBER = 9600;
-const float MAX_MOTOR_SPEED = 440.0;
-const float MIN_MOTOR_SPEED = 220.0;
-const float MOTOR_SPEED_DIFF = 220.0;
+const int MAX_STEPS = 200;
 
 
 // vars
@@ -23,25 +21,22 @@ Gear gear10(10);
 Gear gear11(11);
 Gear gear12(12);
 
-AccelStepper motor01; // Defaults to pins 2, 3, 4, 5           // small
-AccelStepper motor02(AccelStepper::FULL4WIRE, 6, 7, 8, 9);     // medium
-AccelStepper motor03(AccelStepper::FULL4WIRE, 10, 11, 12, 13); // big
-AccelStepper motor04(AccelStepper::FULL4WIRE, 14, 15, 16, 17); // medium
-AccelStepper motor05(AccelStepper::FULL4WIRE, 18, 19, 20, 21); // big
-AccelStepper motor06(AccelStepper::FULL4WIRE, 22, 23, 24, 25); // small
-AccelStepper motor07(AccelStepper::FULL4WIRE, 26, 27, 28, 29); // medium
-AccelStepper motor08(AccelStepper::FULL4WIRE, 30, 31, 32, 33); // big
-AccelStepper motor09(AccelStepper::FULL4WIRE, 34, 35, 36, 37); // medium
-AccelStepper motor10(AccelStepper::FULL4WIRE, 38, 39, 40, 41); // small
-AccelStepper motor11(AccelStepper::FULL4WIRE, 42, 43, 44, 45); // medium
-AccelStepper motor12(AccelStepper::FULL4WIRE, 46, 47, 48, 49); // small
+Stepper motor01(MAX_STEPS, 2, 3, 4, 5);     // small
+Stepper motor02(MAX_STEPS, 6, 7, 8, 9);     // medium
+Stepper motor03(MAX_STEPS, 10, 11, 12, 13); // big
+Stepper motor04(MAX_STEPS, 14, 15, 16, 17); // medium
+Stepper motor05(MAX_STEPS, 18, 19, 20, 21); // big
+Stepper motor06(MAX_STEPS, 22, 23, 24, 25); // small
+Stepper motor07(MAX_STEPS, 26, 27, 28, 29); // medium
+Stepper motor08(MAX_STEPS, 30, 31, 32, 33); // big
+Stepper motor09(MAX_STEPS, 34, 35, 36, 37); // medium
+Stepper motor10(MAX_STEPS, 38, 39, 40, 41); // small
+Stepper motor11(MAX_STEPS, 42, 43, 44, 45); // medium
+Stepper motor12(MAX_STEPS, 46, 47, 48, 49); // small
 
 
 // arduino methods
 void setup() {
-  // set max speed for motors
-  initMotorsSpeed();
-
   // init serial communications
   Serial.begin(PORT_NUMBER);
 }
@@ -65,51 +60,63 @@ void loop() {
   // FIXME: motor instances are not happy inside arrays. improve with loop somehow
   switch (gearId) {
     case 1:
-      triggerGear01(rotationRatio);
+      gear01.rotationRatio = rotationRatio;
+      gear01.trigger();
       break;
 
     case 2:
-      triggerGear02(rotationRatio);
+      gear02.rotationRatio = rotationRatio;
+      gear02.trigger();
       break;
 
     case 3:
-      triggerGear03(rotationRatio);
+      gear03.rotationRatio = rotationRatio;
+      gear03.trigger();
       break;
 
     case 4:
-      triggerGear04(rotationRatio);
+      gear04.rotationRatio = rotationRatio;
+      gear04.trigger();
       break;
 
     case 5:
-      triggerGear05(rotationRatio);
+      gear05.rotationRatio = rotationRatio;
+      gear05.trigger();
       break;
 
     case 6:
-      triggerGear06(rotationRatio);
+      gear06.rotationRatio = rotationRatio;
+      gear06.trigger();
       break;
 
     case 7:
-      triggerGear07(rotationRatio);
+      gear07.rotationRatio = rotationRatio;
+      gear07.trigger();
       break;
 
     case 8:
-      triggerGear08(rotationRatio);
+      gear08.rotationRatio = rotationRatio;
+      gear08.trigger();
       break;
 
     case 9:
-      triggerGear09(rotationRatio);
+      gear09.rotationRatio = rotationRatio;
+      gear09.trigger();
       break;
 
     case 10:
-      triggerGear10(rotationRatio);
+      gear10.rotationRatio = rotationRatio;
+      gear10.trigger();
       break;
 
     case 11:
-      triggerGear11(rotationRatio);
+      gear11.rotationRatio = rotationRatio;
+      gear11.trigger();
       break;
 
     case 12:
-      triggerGear12(rotationRatio);
+      gear12.rotationRatio = rotationRatio;
+      gear12.trigger();
       break;
   }
   
@@ -146,237 +153,89 @@ void loop() {
 
 
 // methods definitions
-void initMotorsSpeed() {
-  // set max speed for motors
-  motor01.setMaxSpeed(MAX_MOTOR_SPEED);
-  motor02.setMaxSpeed(MAX_MOTOR_SPEED);
-  motor03.setMaxSpeed(MAX_MOTOR_SPEED);
-  motor04.setMaxSpeed(MAX_MOTOR_SPEED);
-  motor05.setMaxSpeed(MAX_MOTOR_SPEED);
-  motor06.setMaxSpeed(MAX_MOTOR_SPEED);
-  motor07.setMaxSpeed(MAX_MOTOR_SPEED);
-  motor08.setMaxSpeed(MAX_MOTOR_SPEED);
-  motor09.setMaxSpeed(MAX_MOTOR_SPEED);
-  motor10.setMaxSpeed(MAX_MOTOR_SPEED);
-  motor11.setMaxSpeed(MAX_MOTOR_SPEED);
-  motor12.setMaxSpeed(MAX_MOTOR_SPEED);
-
-  // set speed for motors
-  motor01.setSpeed(MIN_MOTOR_SPEED);
-  motor02.setSpeed(MIN_MOTOR_SPEED);
-  motor03.setSpeed(MIN_MOTOR_SPEED);
-  motor04.setSpeed(MIN_MOTOR_SPEED);
-  motor05.setSpeed(MIN_MOTOR_SPEED);
-  motor06.setSpeed(MIN_MOTOR_SPEED);
-  motor07.setSpeed(MIN_MOTOR_SPEED);
-  motor08.setSpeed(MIN_MOTOR_SPEED);
-  motor09.setSpeed(MIN_MOTOR_SPEED);
-  motor10.setSpeed(MIN_MOTOR_SPEED);
-  motor11.setSpeed(MIN_MOTOR_SPEED);
-  motor12.setSpeed(MIN_MOTOR_SPEED);
-}
-
 // FIXME: for some ridiculous and unknown reason,
 // cannot use arrays to get motors and gears
-void triggerGear01(float rotationRatio) {
-  // set speed and direction
-  if (rotationRatio > 0) {
-    motor01.setSpeed(MIN_MOTOR_SPEED);
-  } else {
-    motor01.setSpeed(MIN_MOTOR_SPEED * -1);
-  }
-
-  gear01.trigger();
-}
-
-void triggerGear02(float rotationRatio) {
-  // set speed and direction
-  if (rotationRatio > 0) {
-    motor02.setSpeed(MIN_MOTOR_SPEED);
-  } else {
-    motor02.setSpeed(MIN_MOTOR_SPEED * -1);
-  }
-
-  gear02.trigger();
-}
-
-void triggerGear03(float rotationRatio) {
-  // set speed and direction
-  if (rotationRatio > 0) {
-    motor03.setSpeed(MIN_MOTOR_SPEED);
-  } else {
-    motor03.setSpeed(MIN_MOTOR_SPEED * -1);
-  }
-
-  gear03.trigger();
-}
-
-void triggerGear04(float rotationRatio) {
-  // set speed and direction
-  if (rotationRatio > 0) {
-    motor04.setSpeed(MIN_MOTOR_SPEED);
-  } else {
-    motor04.setSpeed(MIN_MOTOR_SPEED * -1);
-  }
-
-  gear04.trigger();
-}
-
-void triggerGear05(float rotationRatio) {
-  // set speed and direction
-  if (rotationRatio > 0) {
-    motor05.setSpeed(MIN_MOTOR_SPEED);
-  } else {
-    motor05.setSpeed(MIN_MOTOR_SPEED * -1);
-  }
-
-  gear05.trigger();
-}
-
-void triggerGear06(float rotationRatio) {
-  // set speed and direction
-  if (rotationRatio > 0) {
-    motor06.setSpeed(MIN_MOTOR_SPEED);
-  } else {
-    motor06.setSpeed(MIN_MOTOR_SPEED * -1);
-  }
-
-  gear06.trigger();
-}
-
-void triggerGear07(float rotationRatio) {
-  // set speed and direction
-  if (rotationRatio > 0) {
-    motor07.setSpeed(MIN_MOTOR_SPEED);
-  } else {
-    motor07.setSpeed(MIN_MOTOR_SPEED * -1);
-  }
-
-  gear07.trigger();
-}
-
-void triggerGear08(float rotationRatio) {
-  // set speed and direction
-  if (rotationRatio > 0) {
-    motor08.setSpeed(MIN_MOTOR_SPEED);
-  } else {
-    motor08.setSpeed(MIN_MOTOR_SPEED * -1);
-  }
-
-  gear08.trigger();
-}
-
-void triggerGear09(float rotationRatio) {
-  // set speed and direction
-  if (rotationRatio > 0) {
-    motor09.setSpeed(MIN_MOTOR_SPEED);
-  } else {
-    motor09.setSpeed(MIN_MOTOR_SPEED * -1);
-  }
-
-  gear09.trigger();
-}
-
-void triggerGear10(float rotationRatio) {
-  // set speed and direction
-  if (rotationRatio > 0) {
-    motor10.setSpeed(MIN_MOTOR_SPEED);
-  } else {
-    motor10.setSpeed(MIN_MOTOR_SPEED * -1);
-  }
-
-  gear10.trigger();
-}
-
-void triggerGear11(float rotationRatio) {
-  // set speed and direction
-  if (rotationRatio > 0) {
-    motor11.setSpeed(MIN_MOTOR_SPEED);
-  } else {
-    motor11.setSpeed(MIN_MOTOR_SPEED * -1);
-  }
-
-  gear11.trigger();
-}
-
-void triggerGear12(float rotationRatio) {
-  // set speed and direction
-  if (rotationRatio > 0) {
-    motor12.setSpeed(MIN_MOTOR_SPEED);
-  } else {
-    motor12.setSpeed(MIN_MOTOR_SPEED * -1);
-  }
-
-  gear12.trigger();
-}void runMotor01() {
+void runMotor01() {
   if (gear01.isTriggered) {
-    motor01.runSpeed();
+    int stepSize = (gear01.rotationRatio > 0) ? 1 : -1;
+    motor01.step(stepSize);
   }
 }
 
 void runMotor02() {
   if (gear02.isTriggered) {
-    motor02.runSpeed();
+    int stepSize = (gear02.rotationRatio > 0) ? 1 : -1;
+    motor02.step(stepSize);
   }
 }
 
 void runMotor03() {
   if (gear03.isTriggered) {
-    motor03.runSpeed();
+    int stepSize = (gear03.rotationRatio > 0) ? 1 : -1;
+    motor03.step(stepSize);
   }
 }
 
 void runMotor04() {
   if (gear04.isTriggered) {
-    motor04.runSpeed();
+    int stepSize = (gear04.rotationRatio > 0) ? 1 : -1;
+    motor04.step(stepSize);
   }
 }
 
 void runMotor05() {
   if (gear05.isTriggered) {
-    motor05.runSpeed();
+    int stepSize = (gear05.rotationRatio > 0) ? 1 : -1;
+    motor05.step(stepSize);
   }
 }
 
 void runMotor06() {
   if (gear06.isTriggered) {
-    motor06.runSpeed();
+    int stepSize = (gear06.rotationRatio > 0) ? 1 : -1;
+    motor06.step(stepSize);
   }
 }
 
 void runMotor07() {
   if (gear07.isTriggered) {
-    motor07.runSpeed();
+    int stepSize = (gear07.rotationRatio > 0) ? 1 : -1;
+    motor07.step(stepSize);
   }
 }
 
 void runMotor08() {
   if (gear08.isTriggered) {
-    motor08.runSpeed();
+    int stepSize = (gear08.rotationRatio > 0) ? 1 : -1;
+    motor08.step(stepSize);
   }
 }
 
 void runMotor09() {
   if (gear09.isTriggered) {
-    motor09.runSpeed();
+    int stepSize = (gear09.rotationRatio > 0) ? 1 : -1;
+    motor09.step(stepSize);
   }
 }
 
 void runMotor10() {
   if (gear10.isTriggered) {
-    motor10.runSpeed();
+    int stepSize = (gear10.rotationRatio > 0) ? 1 : -1;
+    motor10.step(stepSize);
   }
 }
 
 void runMotor11() {
   if (gear11.isTriggered) {
-    motor11.runSpeed();
+    int stepSize = (gear11.rotationRatio > 0) ? 1 : -1;
+    motor11.step(stepSize);
   }
 }
 
 void runMotor12() {
   if (gear12.isTriggered) {
-    motor12.runSpeed();
+    int stepSize = (gear12.rotationRatio > 0) ? 1 : -1;
+    motor12.step(stepSize);
   }
 }
 
