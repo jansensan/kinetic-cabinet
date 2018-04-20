@@ -57,17 +57,18 @@ class Gear {
     view = new PImage(viewZone.w, viewZone.h);
   }
 
-  void clearRotatingState() {
-    if (isRotating && millis() >= rotationEndTime) {
-      printMethodName("clearRotatingState");
-      isRotating = false;
-    }
-  }
-
   void clearTrigerredState() {
     if (isTriggered && millis() >= triggerEndTime) {
       printMethodName("clearTrigerredState");
       isTriggered = false;
+    }
+  }
+
+  void endRotatingState() {
+    if (isRotating && millis() >= rotationEndTime) {
+      printMethodName("endRotatingState");
+      isRotating = false;
+      rotateSurroundingGears();
     }
   }
 
@@ -86,7 +87,7 @@ class Gear {
     } else if (flow < 0) {
       ratio = (flow / maxLeftFlow) * -1;
     }
-    
+
     return ratio;
   }
 
@@ -102,6 +103,10 @@ class Gear {
     return (type == 1);
   }
 
+  boolean isGearBigger(Gear gear) {
+    return gear.type > type;
+  }
+
   boolean isTriggerAvailable() {
     return (millis() >= nextAvailableTime) && !isTriggered;
   }
@@ -109,35 +114,27 @@ class Gear {
   void rotate(Gear source) {
     printMethodName("rotate");
 
-    // TODO: see if should be ratio of some sort
+    // TODO: see if should be ratio of some sort?
     impulse = getAverageFlow();
 
+    // reverse direction
+    if (source != this) {
+      impulse *= -1;
+    }
+
     rotationEndTime = millis() + ROTATION_DURATION;
+    isRotating = true;
 
-    // affect rotation duration according to source size
-    if (source == this) {
-      isRotating = true;
+    // send to arduino (via parent)
+    main.triggerMotor(this);
+  }
 
-      // send to arduino (via parent)
-      main.triggerMotor(this);
-
-    } else if (source == previous) {
-      // reverse direction
-      impulse *= -1;
-
-      // TODO: handle previous gear rotation
-      //if (previous != null) {
-      //  previous.rotate();
-      //}
-
-    } else if (source == next) {
-      // reverse direction
-      impulse *= -1;
-
-      // TODO: handle previous gear rotation
-      //if (next != null) {
-      //  next.rotate();
-      //}
+  void rotateSurroundingGears() {
+    if (!previous.isGearBigger(this)) {
+      previous.rotate(this);
+    }
+    if (!next.isGearBigger(this)) {
+      next.rotate(this);
     }
   }
 
@@ -173,7 +170,7 @@ class Gear {
   }
 
   void update() {
-    clearRotatingState();
+    endRotatingState();
     clearTrigerredState();
   }
 
