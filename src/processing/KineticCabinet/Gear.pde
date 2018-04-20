@@ -68,7 +68,9 @@ class Gear {
     if (isRotating && millis() >= rotationEndTime) {
       printMethodName("endRotatingState");
       isRotating = false;
-      rotateSurroundingGears();
+
+      // hack for imca 400 vernissage/exhibit
+      // rotateSurroundingGears();
     }
   }
 
