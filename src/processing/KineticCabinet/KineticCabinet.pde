@@ -323,7 +323,7 @@ void drawViewZone(Gear gear) {
 
 String getPayloadString(Gear gear) {
   // hack for imca 400 vernissage/exhibit
-  int randomId = int randomId = int(random(1, 12)); 
+  int randomId = randomId = int(random(1, 12)); 
 
   // creates a string "[id],[impulseRatio]"
   String payload = randomId + "," + gear.getImpulseRatio();
