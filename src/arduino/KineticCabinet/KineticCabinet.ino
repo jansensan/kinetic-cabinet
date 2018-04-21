@@ -5,6 +5,7 @@
 // constants
 const int PORT_NUMBER = 9600;
 const int MAX_STEPS = 200;
+const int STEP_SIZE = 10;
 
 
 // vars
@@ -157,84 +158,84 @@ void loop() {
 // cannot use arrays to get motors and gears
 void runMotor01() {
   if (gear01.isTriggered) {
-    int stepSize = (gear01.rotationRatio > 0) ? 1 : -1;
+    int stepSize = (gear01.rotationRatio > 0) ? STEP_SIZE : -STEP_SIZE;
     motor01.step(stepSize);
   }
 }
 
 void runMotor02() {
   if (gear02.isTriggered) {
-    int stepSize = (gear02.rotationRatio > 0) ? 1 : -1;
+    int stepSize = (gear02.rotationRatio > 0) ? STEP_SIZE : -STEP_SIZE;
     motor02.step(stepSize);
   }
 }
 
 void runMotor03() {
   if (gear03.isTriggered) {
-    int stepSize = (gear03.rotationRatio > 0) ? 1 : -1;
+    int stepSize = (gear03.rotationRatio > 0) ? STEP_SIZE : -STEP_SIZE;
     motor03.step(stepSize);
   }
 }
 
 void runMotor04() {
   if (gear04.isTriggered) {
-    int stepSize = (gear04.rotationRatio > 0) ? 1 : -1;
+    int stepSize = (gear04.rotationRatio > 0) ? STEP_SIZE : -STEP_SIZE;
     motor04.step(stepSize);
   }
 }
 
 void runMotor05() {
   if (gear05.isTriggered) {
-    int stepSize = (gear05.rotationRatio > 0) ? 1 : -1;
+    int stepSize = (gear05.rotationRatio > 0) ? STEP_SIZE : -STEP_SIZE;
     motor05.step(stepSize);
   }
 }
 
 void runMotor06() {
   if (gear06.isTriggered) {
-    int stepSize = (gear06.rotationRatio > 0) ? 1 : -1;
+    int stepSize = (gear06.rotationRatio > 0) ? STEP_SIZE : -STEP_SIZE;
     motor06.step(stepSize);
   }
 }
 
 void runMotor07() {
   if (gear07.isTriggered) {
-    int stepSize = (gear07.rotationRatio > 0) ? 1 : -1;
+    int stepSize = (gear07.rotationRatio > 0) ? STEP_SIZE : -STEP_SIZE;
     motor07.step(stepSize);
   }
 }
 
 void runMotor08() {
   if (gear08.isTriggered) {
-    int stepSize = (gear08.rotationRatio > 0) ? 1 : -1;
+    int stepSize = (gear08.rotationRatio > 0) ? STEP_SIZE : -STEP_SIZE;
     motor08.step(stepSize);
   }
 }
 
 void runMotor09() {
   if (gear09.isTriggered) {
-    int stepSize = (gear09.rotationRatio > 0) ? 1 : -1;
+    int stepSize = (gear09.rotationRatio > 0) ? STEP_SIZE : -STEP_SIZE;
     motor09.step(stepSize);
   }
 }
 
 void runMotor10() {
   if (gear10.isTriggered) {
-    int stepSize = (gear10.rotationRatio > 0) ? 1 : -1;
+    int stepSize = (gear10.rotationRatio > 0) ? STEP_SIZE : -STEP_SIZE;
     motor10.step(stepSize);
   }
 }
 
 void runMotor11() {
   if (gear11.isTriggered) {
-    int stepSize = (gear11.rotationRatio > 0) ? 1 : -1;
+    int stepSize = (gear11.rotationRatio > 0) ? STEP_SIZE : -STEP_SIZE;
     motor11.step(stepSize);
   }
 }
 
 void runMotor12() {
   if (gear12.isTriggered) {
-    int stepSize = (gear12.rotationRatio > 0) ? 1 : -1;
+    int stepSize = (gear12.rotationRatio > 0) ? STEP_SIZE : -STEP_SIZE;
     motor12.step(stepSize);
   }
 }
